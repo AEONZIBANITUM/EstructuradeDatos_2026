@@ -14,7 +14,22 @@ public static void Sumar(ref int acumulador, int sumando)
 {
     acumulador += sumando;
 }
-
+/// <summary>
+/// Intercambia los valores de dos variables existentes
+/// mediante parámetros por referencia.
+/// </summary>
+/// <param name="primero">
+/// Primera variable cuyo valor será intercambiado.
+/// </param>
+/// <param name="segundo">
+/// Segunda variable cuyo valor será intercambiado.
+/// </param>
+public static void Intercambiar(ref int primero, ref int segundo)
+{
+    int temporal = primero;
+    primero = segundo;
+    segundo = temporal;
+}
    /// <summary>
 /// Analiza un arreglo de números y produce su promedio
 /// y su valor máximo mediante parámetros out.

@@ -12,3 +12,11 @@ Calculadora.AnalizarValores(
     out int max);
 
 Console.WriteLine($"Prom:{prom} Max:{max}");
+
+int primero = 5;
+int segundo = 9;
+
+Calculadora.Intercambiar(ref primero, ref segundo);
+
+Console.WriteLine(
+    $"Intercambio: primero={primero} segundo={segundo}");
