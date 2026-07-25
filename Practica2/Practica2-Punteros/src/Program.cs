@@ -12,3 +12,20 @@ Calculadora.AnalizarValores(
     out int max);
 
 Console.WriteLine($"Prom:{prom} Max:{max}");
+
+int primero = 5;
+int segundo = 9;
+
+Calculadora.Intercambiar(ref primero, ref segundo);
+
+Console.WriteLine(
+    $"Intercambio: primero={primero} segundo={segundo}");
+
+    bool divisionValida = Calculadora.IntentarDividir(
+    17,
+    5,
+    out int cociente,
+    out int residuo);
+
+Console.WriteLine(
+    $"División válida: {divisionValida} cociente={cociente} residuo={residuo}");

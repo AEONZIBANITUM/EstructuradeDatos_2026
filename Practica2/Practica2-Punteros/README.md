@@ -9,21 +9,27 @@
 
 ## Descripción
 
-Este proyecto demuestra el uso de los modificadores `ref` y `out` en C#.
-El método `Sumar` modifica directamente una variable previamente inicializada mediante `ref`, mientras que `AnalizarValores` produce múltiples resultados mediante parámetros `out`.
+Este proyecto demuestra el uso de los modificadores `ref` y `out` en C# mediante cuatro métodos.
 
-La práctica fue desarrollada en una rama independiente de Git llamada `feature/referencias`, utilizando commits intermedios para documentar cada etapa de la refactorización.
+Los métodos `Sumar` e `Intercambiar` utilizan `ref` para modificar directamente variables previamente inicializadas. Los métodos `AnalizarValores` e `IntentarDividir` utilizan `out` para producir múltiples resultados desde una misma llamada.
 
-Reflexión personal
+La práctica fue desarrollada mediante ramas independientes de Git y commits atómicos que documentan la implementación original, la refactorización y la ampliación necesaria para cumplir los criterios de nivel Excelente de la rúbrica.
 
-Durante esta práctica comprendí que ref permite modificar directamente una variable que ya fue inicializada, mientras que out permite producir uno o varios resultados desde un método.
-También observé que ambos modificadores cambian la forma en que los métodos se comunican con las variables del programa principal.
-La comparación entre el código original y el refactorizado me ayudó a entender mejor la diferencia entre devolver un valor y trabajar mediante referencia.
-Finalmente, el uso de una rama y commits intermedios permitió mantener un historial ordenado y documentar claramente cada cambio realizado.
+## Reflexión personal
 
-Uso de herramientas de apoyo
+Durante esta práctica comprendí que `ref` permite trabajar directamente sobre variables que ya existen y que deben estar inicializadas antes de llamar al método.
 
-Se utilizó herramientas de inteligencia artifial como apoyo didáctico para comprender las instrucciones, revisar errores, analizar comandos y verificar el cumplimiento de la práctica. El código fue escrito, ejecutado y comprobado directamente por la estudiante en Visual Studio Code.
+También comprobé que `out` permite producir varios resultados y obliga al método a asignarlos antes de finalizar, incluso cuando existen diferentes rutas de ejecución.
+
+La implementación de `Intercambiar` e `IntentarDividir` me permitió aplicar estos conceptos en situaciones distintas a los ejemplos iniciales.
+
+Finalmente, el uso de ramas y commits atómicos facilitó ampliar el proyecto sin poner en riesgo la versión estable previamente terminada.
+
+## Uso de herramientas de apoyo
+
+Se utilizaron herramientas de inteligencia artificial como apoyo didáctico para comprender las instrucciones, revisar errores, analizar comandos y verificar el cumplimiento de la práctica.
+
+El código fue escrito, ejecutado y comprobado directamente por la estudiante en Visual Studio Code.
 
 ## Requisitos
 
@@ -39,4 +45,32 @@ Desde la raíz del repositorio:
 
 ```powershell
 dotnet build ".\Practica2\Practica2-Punteros\src\Practica2Punteros.csproj"
+```
 
+## Ejecutar
+
+Desde la raíz del repositorio:
+
+```powershell
+dotnet run --project ".\Practica2\Practica2-Punteros\src\Practica2Punteros.csproj"
+```
+
+## Resultado esperado
+
+```text
+10
+Prom:4.75 Max:8
+Intercambio: primero=9 segundo=5
+División válida: True cociente=3 residuo=2
+```
+
+## Conceptos aplicados
+
+- Modificación de variables existentes mediante `ref`.
+- Intercambio de dos valores utilizando referencias.
+- Producción de múltiples resultados mediante `out`.
+- Asignación obligatoria de parámetros `out` en todas las rutas.
+- Conservación del comportamiento original después de refactorizar.
+- Uso de clases y métodos estáticos.
+- Documentación XML.
+- Flujo de trabajo con ramas y commits atómicos en Git.
