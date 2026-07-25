@@ -6,16 +6,25 @@ public static void Sumar(ref int acumulador, int sumando)
     acumulador += sumando;
 }
 
-    // TODO: reemplazar este método por AnalizarValores usando out.
-    public static double Promediar(int[] valores)
+   // 'out' produce múltiples resultados.
+public static void AnalizarValores(
+    int[] valores,
+    out double promedio,
+    out int maximo)
+{
+    double suma = 0;
+    maximo = valores[0];
+
+    foreach (int valor in valores)
     {
-        double suma = 0;
+        suma += valor;
 
-        foreach (int valor in valores)
+        if (valor > maximo)
         {
-            suma += valor;
+            maximo = valor;
         }
-
-        return suma / valores.Length;
     }
+
+    promedio = suma / valores.Length;
+}
 }
