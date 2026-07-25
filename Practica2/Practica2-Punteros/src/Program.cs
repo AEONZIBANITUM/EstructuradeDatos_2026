@@ -20,3 +20,12 @@ Calculadora.Intercambiar(ref primero, ref segundo);
 
 Console.WriteLine(
     $"Intercambio: primero={primero} segundo={segundo}");
+
+    bool divisionValida = Calculadora.IntentarDividir(
+    17,
+    5,
+    out int cociente,
+    out int residuo);
+
+Console.WriteLine(
+    $"División válida: {divisionValida} cociente={cociente} residuo={residuo}");

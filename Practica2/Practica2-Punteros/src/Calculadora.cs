@@ -63,4 +63,41 @@ public static void AnalizarValores(
 
     promedio = suma / valores.Length;
 }
+/// <summary>
+/// Intenta realizar una división entera y produce el cociente
+/// y el residuo mediante parámetros de salida.
+/// </summary>
+/// <param name="dividendo">
+/// Número que será dividido.
+/// </param>
+/// <param name="divisor">
+/// Número entre el cual se realizará la división.
+/// </param>
+/// <param name="cociente">
+/// Resultado entero de la división.
+/// </param>
+/// <param name="residuo">
+/// Resto generado por la división entera.
+/// </param>
+/// <returns>
+/// true si la división pudo realizarse; false si el divisor es cero.
+/// </returns>
+public static bool IntentarDividir(
+    int dividendo,
+    int divisor,
+    out int cociente,
+    out int residuo)
+{
+    if (divisor == 0)
+    {
+        cociente = 0;
+        residuo = dividendo;
+        return false;
+    }
+
+    cociente = dividendo / divisor;
+    residuo = dividendo % divisor;
+
+    return true;
+}
 }
