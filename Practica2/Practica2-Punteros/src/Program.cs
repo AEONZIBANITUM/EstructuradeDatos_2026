@@ -1,3 +1,5 @@
-﻿int resultado = Calculadora.Sumar(4, 6);
+﻿int total = 4;
 
-Console.WriteLine(resultado);
+Calculadora.Sumar(ref total, 6);
+
+Console.WriteLine(total);

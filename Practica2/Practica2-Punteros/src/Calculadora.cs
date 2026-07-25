@@ -1,12 +1,10 @@
 public class Calculadora
 {
-    // TODO: refactorizar este método para usar ref.
-    // Retorno explícito: el llamador recibe
-    // una copia del resultado.
-    public static int Sumar(int a, int b)
-    {
-        return a + b;
-    }
+    // 'ref' modifica directamente una variable previamente inicializada.
+public static void Sumar(ref int acumulador, int sumando)
+{
+    acumulador += sumando;
+}
 
     // TODO: reemplazar este método por AnalizarValores usando out.
     public static double Promediar(int[] valores)
