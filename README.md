@@ -4,6 +4,12 @@ Repositorio académico de prácticas, ejercicios y entregables de la materia **E
 
 Los proyectos están desarrollados principalmente en **C# con .NET 8** y se administran mediante un único repositorio de **Git y GitHub**.
 
+## Datos del estudiante
+
+- **Nombre completo:** Jose Paulo Santana Ramirez
+- **Matrícula:** 14868430
+- **Materia:** Estructura de Datos
+- **Ciclo:** 26-3
 ---
 
 ## Estado actual del repositorio
@@ -12,6 +18,8 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 |---|---|---|
 | `Entregable1_Prueba` | Completado | Proyecto inicial para comprobar el funcionamiento de C#, .NET, Visual Studio Code, Git y GitHub. |
 | `Practica1/CalculadoraFisica` | Completado | Calculadora de cinemática modular con validación de entradas y funciones independientes. |
+| `Practica2/Practica2-Punteros` | Completado | Simulación de mecanismos de punteros en C# mediante parámetros `ref` y `out`, con documentación y evidencias. |
+| `Practica3/SimuladorHeap` | Completado | Simulador de arreglos dinámicos para analizar Stack, Heap, mutación de objetos y reasignación local de referencias. |
 
 ---
 
@@ -64,13 +72,20 @@ EstructuradeDatos_2026/
 │       ├── Calculos.cs
 │       ├── EntradaUsuario.cs
 │       └── Program.cs
+├── Practica2/
+│   └── Practica2-Punteros/
+│       ├── capturas/
+│       ├── src/
+│       │   ├── Calculadora.cs
+│       │   └── Practica2Punteros.csproj
+│       ├── Program.cs
+│       └── README.md
+├── Practica3/
+│   └── SimuladorHeap/
+│       ├── Program.cs
+│       └── SimuladorHeap.csproj
 ├── .gitignore
 └── README.md
-```
-
-Las carpetas `bin/` y `obj/` se generan automáticamente durante la compilación, pero permanecen excluidas del control de versiones mediante el archivo `.gitignore` principal.
-
----
 
 # Entregable 1 — Proyecto de prueba
 
@@ -490,14 +505,299 @@ Estos directorios pueden existir localmente después de compilar, pero no forman
 
 ---
 
+# Práctica 2 — Simulación de Punteros en C#
+
+## Nombre de la práctica
+
+**Mecanismos de Pasaje de Parámetros Avanzados mediante `ref` y `out` en C#**
+
+## Objetivo
+
+Comprender cómo C# permite simular ciertos comportamientos asociados con punteros mediante parámetros especiales que pueden modificar variables del método llamador o inicializar valores desde un método auxiliar.
+
+## Proyecto
+
+```text
+Practica2/Practica2-Punteros
+```
+
+## Conceptos aplicados
+
+- Paso de parámetros por valor.
+- Uso de parámetros `ref`.
+- Uso de parámetros `out`.
+- Modificación de variables desde métodos auxiliares.
+- Separación de responsabilidades.
+- Refactorización del código.
+- Validación mediante compilación y ejecución.
+- Flujo de trabajo con ramas y commits atómicos.
+
+## Estructura principal
+
+```text
+Practica2/Practica2-Punteros/
+├── capturas/
+├── src/
+│   ├── Calculadora.cs
+│   └── Practica2Punteros.csproj
+├── Program.cs
+└── README.md
+```
+
+## Compilar la Práctica 2
+
+Desde la raíz del repositorio:
+
+```powershell
+dotnet build ".\Practica2\Practica2-Punteros\src\Practica2Punteros.csproj"
+```
+
+## Ejecutar la Práctica 2
+
+```powershell
+dotnet run --project ".\Practica2\Practica2-Punteros\src\Practica2Punteros.csproj"
+```
+
+## Estado de la Práctica 2
+
+- Proyecto dirigido a .NET 8.
+- Uso de `ref` implementado y comprobado.
+- Uso de `out` implementado y comprobado.
+- Refactorización completada.
+- Compilación realizada sin errores.
+- Evidencias organizadas.
+- Commits descriptivos conservados.
+- Merge y publicación en GitHub completados.
+
+---
+
+# Práctica 3 — Control y Manipulación de Arreglos Dinámicos en el Heap
+
+## Proyecto
+
+```text
+Practica3/SimuladorHeap
+```
+
+## Objetivo
+
+Analizar el comportamiento de los arreglos de tipos de referencia en .NET y comprobar mediante el debugger la relación entre:
+
+- Variables locales almacenadas en el Stack.
+- Objetos dinámicos almacenados en el Heap.
+- Copias de referencias enviadas como parámetros.
+- Mutación de un objeto compartido.
+- Reasignación local de una referencia.
+- Inmutabilidad de los objetos `string`.
+
+## Métodos implementados
+
+```csharp
+static void Main(string[] args)
+static string[] InicializarArreglo(int n)
+static void ModificarArreglo(string[] arr)
+static void ModificarElementos(string[] arr)
+static void ReasignarArreglo(string[] arr)
+static void MostrarArreglo(string[] arr)
+```
+
+## Funcionamiento general
+
+El programa:
+
+1. Solicita la cantidad de elementos.
+2. Crea un arreglo de `string` en tiempo de ejecución.
+3. Captura y muestra sus valores iniciales.
+4. Convierte cada elemento a mayúsculas.
+5. Agrega el identificador `[MOD-i]`.
+6. Modifica el primer elemento mediante una referencia compartida.
+7. Reasigna localmente el parámetro a un arreglo nuevo.
+8. Comprueba que esa reasignación no sustituye la referencia de `Main`.
+
+## Stack y Heap
+
+La variable local:
+
+```csharp
+string[] arreglo
+```
+
+se encuentra dentro del marco de ejecución de `Main` y contiene una referencia.
+
+El objeto creado mediante:
+
+```csharp
+new string[n]
+```
+
+se almacena en el Heap administrado.
+
+Cuando el arreglo se envía a un método sin utilizar `ref`, se copia la referencia. El método puede modificar los elementos del mismo objeto, pero una reasignación local no sustituye la variable del llamador.
+
+## Escenario A — Mutación del objeto compartido
+
+```csharp
+static void ModificarElementos(string[] arr)
+{
+    arr[0] = "MODIFICADO";
+}
+```
+
+La instrucción modifica una posición del arreglo compartido. Al regresar a `Main`, el cambio permanece visible.
+
+## Escenario B — Reasignación local
+
+```csharp
+static void ReasignarArreglo(string[] arr)
+{
+    arr = new string[] { "NUEVO", "ARREGLO" };
+}
+```
+
+Se crea otro objeto en el Heap, pero únicamente cambia la copia local de la referencia `arr`.
+
+La variable `arreglo` de `Main` continúa apuntando al objeto original.
+
+## Compilar la Práctica 3
+
+```powershell
+dotnet restore ".\Practica3\SimuladorHeap\SimuladorHeap.csproj"
+dotnet build ".\Practica3\SimuladorHeap\SimuladorHeap.csproj" --no-restore
+```
+
+## Ejecutar la Práctica 3
+
+```powershell
+dotnet run --project ".\Practica3\SimuladorHeap\SimuladorHeap.csproj" --no-build
+```
+
+## Ejemplo de ejecución
+
+Entradas:
+
+```text
+3
+rojo
+azul
+verde
+```
+
+Resultado principal:
+
+```text
+--- Arreglo Inicial ---
+ [0] = rojo
+ [1] = azul
+ [2] = verde
+
+--- Arreglo Modificado ---
+ [0] = ROJO [MOD-0]
+ [1] = AZUL [MOD-1]
+ [2] = VERDE [MOD-2]
+
+--- Escenario A: Modificar elementos ---
+ [0] = MODIFICADO
+ [1] = AZUL [MOD-1]
+ [2] = VERDE [MOD-2]
+
+--- Escenario B: Reasignar arreglo ---
+ [0] = MODIFICADO
+ [1] = AZUL [MOD-1]
+ [2] = VERDE [MOD-2]
+```
+
+## Depuración realizada
+
+Mediante breakpoints y los paneles Variables, Watch y Call Stack se comprobó que:
+
+- `arreglo` es `null` antes de ejecutar la inicialización.
+- Después de `InicializarArreglo`, apunta a un objeto `string[3]`.
+- El parámetro `arr` permite acceder al mismo objeto.
+- La mutación de `arr[0]` persiste al regresar a `Main`.
+- La reasignación de `arr` crea localmente un objeto `string[2]`.
+- Al regresar a `Main`, `arreglo` conserva los tres elementos del objeto original.
+
+## Flujo de Git de la Práctica 3
+
+Rama de desarrollo:
+
+```text
+feature/simulador-heap
+```
+
+Commits registrados:
+
+```text
+chore: inicializar proyecto SimuladorHeap
+feat: agregar inicialización de arreglo dinámico
+feat: agregar función de modificación y display
+feat: agregar experimento ref vs reasignación
+```
+
+Commit de integración:
+
+```text
+Merge PR: Práctica 3 completada
+```
+
+El merge se realizó con `--no-ff` para preservar la bifurcación de la rama y mantener un historial claramente trazable.
+
+## Estado de la Práctica 3
+
+- Proyecto creado con .NET 8.
+- Código compilado sin errores.
+- Ejecución completa verificada.
+- Breakpoints configurados.
+- Variables observadas mediante debugger.
+- Escenario A comprobado.
+- Escenario B comprobado.
+- Tres commits funcionales registrados.
+- Rama feature publicada.
+- Merge `--no-ff` completado.
+- `main` publicada y sincronizada con `origin/main`.
+- Carpetas `bin` y `obj` excluidas del repositorio.
+
+---
+
 ## Propósito académico
 
-Este repositorio fue desarrollado con fines educativos para aplicar conceptos de:
+Este repositorio fue desarrollado con fines educativos para comprender, implementar y documentar conceptos de:
 
 - Funciones y métodos.
 - Modularización.
 - Separación de responsabilidades.
 - Validación de datos.
 - Flujo de control.
-- Estructura de proyectos en C#.
-- Uso de Git y GitHub.
+- Parámetros `ref` y `out`.
+- Tipos de valor y tipos de referencia.
+- Stack y Heap.
+- Arreglos creados dinámicamente.
+- Mutación de objetos compartidos.
+- Reasignación local de referencias.
+- Inmutabilidad de `string`.
+- Depuración de aplicaciones .NET.
+- Organización de proyectos en C#.
+- Uso de ramas y commits atómicos.
+- Integración mediante merges `--no-ff`.
+- Uso responsable de Git y GitHub.
+
+---
+
+## Uso de inteligencia artificial como apoyo didáctico
+
+Durante el desarrollo de las prácticas se utilizó ChatGPT como herramienta de apoyo para:
+
+- Interpretar las instrucciones y documentos oficiales.
+- Comprender la estructura de los comandos de PowerShell.
+- Aplicar correctamente el flujo de Git y GitHub.
+- Organizar las carpetas y archivos de cada proyecto.
+- Explicar conceptos de programación y estructuras de datos.
+- Analizar errores de compilación, ejecución y depuración.
+- Verificar el cumplimiento de los requisitos y checklists.
+- Preparar documentación técnica y registros cronológicos.
+
+Todos los comandos fueron escritos y ejecutados directamente por el estudiante en Visual Studio Code.
+
+El código fue capturado, compilado, ejecutado y depurado mediante resultados reales. Las evidencias utilizadas corresponden al entorno de trabajo del estudiante y no fueron fabricadas ni sustituidas por ejemplos externos.
+
+La inteligencia artificial se utilizó como apoyo didáctico para mejorar la comprensión y la aplicación de los conceptos, sin reemplazar la ejecución, comprobación ni responsabilidad académica del estudiante.
