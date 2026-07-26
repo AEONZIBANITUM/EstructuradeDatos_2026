@@ -20,6 +20,18 @@ class SimuladorHeap
 
         Console.WriteLine("\n--- Arreglo Modificado ---");
         MostrarArreglo(arreglo);
+
+        // Escenario A:
+        // modifica el contenido del objeto compartido
+        Console.WriteLine("\n--- Escenario A: Modificar elementos ---");
+        ModificarElementos(arreglo);
+        MostrarArreglo(arreglo);
+
+        // Escenario B:
+        // reasigna únicamente la referencia local del método
+        Console.WriteLine("\n--- Escenario B: Reasignar arreglo ---");
+        ReasignarArreglo(arreglo);
+        MostrarArreglo(arreglo);
     }
 
     // Crea y retorna una nueva referencia al Heap
@@ -50,6 +62,21 @@ class SimuladorHeap
 
         // No necesitamos retornar nada:
         // los cambios ya están en el Heap
+    }
+
+    // Escenario A:
+    // modifica el contenido del objeto en el Heap
+    static void ModificarElementos(string[] arr)
+    {
+        arr[0] = "MODIFICADO";
+    }
+
+    // Escenario B:
+    // crea un objeto nuevo, pero solamente cambia
+    // la copia local de la referencia
+    static void ReasignarArreglo(string[] arr)
+    {
+        arr = new string[] { "NUEVO", "ARREGLO" };
     }
 
     // Solo lee la referencia, no modifica
