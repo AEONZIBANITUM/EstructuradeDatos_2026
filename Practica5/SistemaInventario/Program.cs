@@ -1,4 +1,6 @@
-﻿namespace SistemaInventario;
+﻿using System.Globalization;
+
+namespace SistemaInventario;
 
 internal static class Program
 {
@@ -9,6 +11,12 @@ internal static class Program
 
     private static void Main()
     {
+        CultureInfo.DefaultThreadCurrentCulture =
+            CultureInfo.GetCultureInfo("es-MX");
+
+        CultureInfo.DefaultThreadCurrentUICulture =
+            CultureInfo.GetCultureInfo("es-MX");
+
         Producto[] inventario = new Producto[CapacidadMaxima];
         int totalRegistros = 0;
         int opcion;
@@ -27,11 +35,11 @@ internal static class Program
             switch (opcion)
             {
                 case 1:
-                    MostrarModuloPendiente("REGISTRAR PRODUCTO");
+                    RegistrarProducto(inventario, ref totalRegistros);
                     break;
 
                 case 2:
-                    MostrarModuloPendiente("MOSTRAR INVENTARIO");
+                    MostrarInventario(inventario, totalRegistros);
                     break;
 
                 case 3:
@@ -84,18 +92,142 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita y valida una opción numérica comprendida entre 1 y 7.
+    /// Registra un producto en la siguiente posición disponible.
+    /// El parámetro ref permite modificar el contador original.
+    /// </summary>
+    private static void RegistrarProducto(
+        Producto[] inventario,
+        ref int totalRegistros)
+    {
+        Console.WriteLine("==================================================");
+        Console.WriteLine("              REGISTRAR PRODUCTO");
+        Console.WriteLine("==================================================");
+        Console.WriteLine();
+
+        if (totalRegistros >= inventario.Length)
+        {
+            Console.WriteLine("No es posible registrar más productos.");
+            Console.WriteLine("El inventario alcanzó su capacidad máxima.");
+            return;
+        }
+
+        int id;
+
+        while (true)
+        {
+            id = LeerEnteroPositivo("ID del producto: ");
+
+            if (BuscarIndicePorId(inventario, totalRegistros, id) == -1)
+            {
+                break;
+            }
+
+            Console.WriteLine(
+                $"El ID {id} ya pertenece a otro producto.");
+            Console.WriteLine("Escribe un identificador diferente.");
+            Console.WriteLine();
+        }
+
+        string nombre = LeerTextoNoVacio("Nombre del producto: ");
+        double precio = LeerPrecioPositivo("Precio unitario: ");
+        int stock = LeerEnteroNoNegativo("Cantidad disponible: ");
+
+        inventario[totalRegistros] =
+            new Producto(id, nombre, precio, stock);
+
+        totalRegistros++;
+
+        Console.WriteLine();
+        Console.WriteLine("Producto registrado correctamente.");
+        Console.WriteLine($"Posición utilizada: {totalRegistros - 1}");
+        Console.WriteLine(
+            $"Espacios disponibles: {inventario.Length - totalRegistros}");
+    }
+
+    /// <summary>
+    /// Recorre y muestra únicamente las posiciones ocupadas del arreglo.
+    /// </summary>
+    private static void MostrarInventario(
+        Producto[] inventario,
+        int totalRegistros)
+    {
+        Console.WriteLine("==============================================================");
+        Console.WriteLine("                    INVENTARIO ACTUAL");
+        Console.WriteLine("==============================================================");
+        Console.WriteLine();
+
+        if (totalRegistros == 0)
+        {
+            Console.WriteLine("El inventario está vacío.");
+            Console.WriteLine("Primero registra al menos un producto.");
+            return;
+        }
+
+        Console.WriteLine(
+            "{0,-8} {1,-24} {2,14} {3,8}",
+            "ID",
+            "NOMBRE",
+            "PRECIO",
+            "STOCK");
+
+        Console.WriteLine(
+            "--------------------------------------------------------------");
+
+        for (int i = 0; i < totalRegistros; i++)
+        {
+            Producto producto = inventario[i];
+
+            string precioFormateado =
+                producto.Precio.ToString(
+                    "C2",
+                    CultureInfo.CurrentCulture);
+
+            Console.WriteLine(
+                "{0,-8} {1,-24} {2,14} {3,8}",
+                producto.ID,
+                TruncarTexto(producto.Nombre, 24),
+                precioFormateado,
+                producto.Stock);
+        }
+
+        Console.WriteLine(
+            "--------------------------------------------------------------");
+
+        Console.WriteLine(
+            $"Total de productos registrados: {totalRegistros}");
+    }
+
+    /// <summary>
+    /// Realiza una búsqueda lineal y devuelve el índice del ID.
+    /// Retorna -1 cuando no existe una coincidencia.
+    /// </summary>
+    private static int BuscarIndicePorId(
+        Producto[] inventario,
+        int totalRegistros,
+        int idBuscado)
+    {
+        for (int i = 0; i < totalRegistros; i++)
+        {
+            if (inventario[i].ID == idBuscado)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    /// <summary>
+    /// Solicita una opción numérica comprendida entre 1 y 7.
     /// </summary>
     private static int LeerOpcionMenu()
     {
-        int opcion;
-
         while (true)
         {
             Console.Write("Selecciona una opción: ");
             string? entrada = Console.ReadLine();
 
-            if (int.TryParse(entrada, out opcion) &&
+            if (int.TryParse(entrada, out int opcion) &&
                 opcion >= 1 &&
                 opcion <= 7)
             {
@@ -103,13 +235,115 @@ internal static class Program
             }
 
             Console.WriteLine();
-            Console.WriteLine("Entrada no válida. Escribe un número del 1 al 7.");
+            Console.WriteLine(
+                "Entrada no válida. Escribe un número del 1 al 7.");
             Console.WriteLine();
         }
     }
 
     /// <summary>
-    /// Muestra temporalmente una sección que será implementada después.
+    /// Solicita un número entero mayor que cero.
+    /// </summary>
+    private static int LeerEnteroPositivo(string mensaje)
+    {
+        while (true)
+        {
+            Console.Write(mensaje);
+            string? entrada = Console.ReadLine();
+
+            if (int.TryParse(entrada, out int valor) && valor > 0)
+            {
+                return valor;
+            }
+
+            Console.WriteLine(
+                "Entrada no válida. Escribe un entero mayor que cero.");
+        }
+    }
+
+    /// <summary>
+    /// Solicita un número entero igual o mayor que cero.
+    /// </summary>
+    private static int LeerEnteroNoNegativo(string mensaje)
+    {
+        while (true)
+        {
+            Console.Write(mensaje);
+            string? entrada = Console.ReadLine();
+
+            if (int.TryParse(entrada, out int valor) && valor >= 0)
+            {
+                return valor;
+            }
+
+            Console.WriteLine(
+                "Entrada no válida. Escribe un entero igual o mayor que cero.");
+        }
+    }
+
+    /// <summary>
+    /// Solicita un precio numérico mayor que cero.
+    /// </summary>
+    private static double LeerPrecioPositivo(string mensaje)
+    {
+        while (true)
+        {
+            Console.Write(mensaje);
+            string? entrada = Console.ReadLine();
+
+            bool conversionCorrecta = double.TryParse(
+                entrada,
+                NumberStyles.Number,
+                CultureInfo.CurrentCulture,
+                out double precio);
+
+            if (conversionCorrecta && precio > 0)
+            {
+                return precio;
+            }
+
+            Console.WriteLine(
+                "Entrada no válida. Escribe un precio mayor que cero.");
+        }
+    }
+
+    /// <summary>
+    /// Solicita una cadena que no esté vacía ni contenga solo espacios.
+    /// </summary>
+    private static string LeerTextoNoVacio(string mensaje)
+    {
+        while (true)
+        {
+            Console.Write(mensaje);
+            string? entrada = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(entrada))
+            {
+                return entrada.Trim();
+            }
+
+            Console.WriteLine(
+                "Entrada no válida. El texto no puede quedar vacío.");
+        }
+    }
+
+    /// <summary>
+    /// Limita la longitud visual de los nombres dentro de la tabla.
+    /// </summary>
+    private static string TruncarTexto(
+        string texto,
+        int longitudMaxima)
+    {
+        if (texto.Length <= longitudMaxima)
+        {
+            return texto;
+        }
+
+        return texto[..(longitudMaxima - 3)] + "...";
+    }
+
+    /// <summary>
+    /// Muestra temporalmente una sección pendiente.
     /// </summary>
     private static void MostrarModuloPendiente(string titulo)
     {
@@ -118,11 +352,11 @@ internal static class Program
         Console.WriteLine("==================================================");
         Console.WriteLine();
         Console.WriteLine("Módulo preparado. Su lógica será implementada");
-        Console.WriteLine("en la siguiente etapa de la práctica.");
+        Console.WriteLine("en una etapa posterior de la práctica.");
     }
 
     /// <summary>
-    /// Muestra el mensaje final al cerrar correctamente la aplicación.
+    /// Muestra el mensaje final de la aplicación.
     /// </summary>
     private static void MostrarDespedida()
     {
@@ -136,7 +370,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Detiene temporalmente el programa antes de regresar al menú.
+    /// Detiene temporalmente el programa antes de volver al menú.
     /// </summary>
     private static void Pausar()
     {
