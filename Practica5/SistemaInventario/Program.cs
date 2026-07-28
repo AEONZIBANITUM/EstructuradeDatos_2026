@@ -6,7 +6,7 @@ namespace SistemaInventario;
 internal static class Program
 {
     /// <summary>
-    /// Número máximo de productos permitidos en el arreglo estático.
+    /// Cantidad máxima de productos permitidos en el arreglo estático.
     /// </summary>
     private const int CapacidadMaxima = 10;
 
@@ -19,13 +19,14 @@ internal static class Program
         CultureInfo.DefaultThreadCurrentUICulture =
             CultureInfo.GetCultureInfo("es-MX");
 
-        // Permite mostrar correctamente caracteres especiales y acentos.
+        // Compatibilidad con caracteres acentuados en la terminal.
         Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
 
-        // Arreglo estático de estructuras Producto.
+        // Arreglo estático que almacena estructuras Producto.
         Producto[] inventario = new Producto[CapacidadMaxima];
 
-        // Indica cuántas posiciones del arreglo contienen productos válidos.
+        // Número de posiciones ocupadas dentro del arreglo.
         int totalRegistros = 0;
 
         int opcion;
@@ -71,13 +72,15 @@ internal static class Program
                     break;
 
                 case 5:
-                    MostrarModuloPendiente(
-                        "GUARDAR INVENTARIO EN ARCHIVO CSV");
+                    InventarioCsv.Guardar(
+                        inventario,
+                        totalRegistros);
                     break;
 
                 case 6:
-                    MostrarModuloPendiente(
-                        "CARGAR INVENTARIO DESDE ARCHIVO CSV");
+                    InventarioCsv.Cargar(
+                        inventario,
+                        ref totalRegistros);
                     break;
 
                 case 7:
@@ -202,7 +205,7 @@ internal static class Program
             precio,
             stock);
 
-        // Se modifica directamente el contador original recibido por ref.
+        // Modifica el contador original recibido mediante ref.
         totalRegistros++;
 
         Console.WriteLine();
@@ -214,13 +217,14 @@ internal static class Program
             "--------------------------------------------------");
 
         Console.WriteLine(
-            $"Posición utilizada:  {posicionUtilizada}");
+            $"Posición utilizada:    {posicionUtilizada}");
 
         Console.WriteLine(
             $"Productos registrados: {totalRegistros}");
 
         Console.WriteLine(
-            $"Espacios disponibles: {inventario.Length - totalRegistros}");
+            $"Espacios disponibles:  " +
+            $"{inventario.Length - totalRegistros}");
 
         Console.WriteLine(
             "--------------------------------------------------");
@@ -250,7 +254,7 @@ internal static class Program
                 "El inventario está vacío.");
 
             Console.WriteLine(
-                "Primero registra al menos un producto.");
+                "Primero registra o carga al menos un producto.");
 
             return;
         }
@@ -290,7 +294,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un ID y muestra la información del producto encontrado.
+    /// Solicita un identificador y muestra el producto encontrado.
     /// </summary>
     private static void BuscarProductoPorId(
         Producto[] inventario,
@@ -463,8 +467,8 @@ internal static class Program
             inventario[indiceEncontrado].Stock;
 
         /*
-         * El elemento del arreglo es una variable de tipo Producto.
-         * Se modifica directamente el campo Stock del struct almacenado
+         * Los elementos de un arreglo se pueden modificar directamente.
+         * Esta asignación cambia el campo Stock del struct almacenado
          * en la posición encontrada.
          */
         inventario[indiceEncontrado].Stock =
@@ -495,8 +499,8 @@ internal static class Program
     }
 
     /// <summary>
-    /// Realiza una búsqueda lineal dentro de las posiciones ocupadas.
-    /// Devuelve el índice encontrado o -1 cuando el ID no existe.
+    /// Realiza una búsqueda lineal en las posiciones ocupadas.
+    /// Devuelve el índice encontrado o -1 cuando no existe el ID.
     /// </summary>
     private static int BuscarIndicePorId(
         Producto[] inventario,
@@ -604,7 +608,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un precio numérico mayor que cero.
+    /// Solicita un precio mayor que cero.
     /// </summary>
     private static double LeerPrecioPositivo(
         string mensaje)
@@ -657,7 +661,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Limita la longitud visual de los nombres dentro de la tabla.
+    /// Limita la longitud visual de un texto dentro de la tabla.
     /// </summary>
     private static string TruncarTexto(
         string texto,
@@ -669,30 +673,6 @@ internal static class Program
         }
 
         return texto[..(longitudMaxima - 3)] + "...";
-    }
-
-    /// <summary>
-    /// Muestra temporalmente una sección todavía no implementada.
-    /// </summary>
-    private static void MostrarModuloPendiente(
-        string titulo)
-    {
-        Console.WriteLine(
-            "==================================================");
-
-        Console.WriteLine(
-            $"   {titulo}");
-
-        Console.WriteLine(
-            "==================================================");
-
-        Console.WriteLine();
-
-        Console.WriteLine(
-            "Módulo preparado. Su lógica será implementada");
-
-        Console.WriteLine(
-            "en una etapa posterior de la práctica.");
     }
 
     /// <summary>
