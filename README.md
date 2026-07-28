@@ -1459,7 +1459,7 @@ dotnet run --project ".\Practica5\SistemaInventario\SistemaInventario.csproj"
 
 ## Evidencias
 
-La práctica contiene 24 capturas organizadas en:
+La práctica contiene **28 capturas** organizadas en:
 
 ```text
 Practica5/SistemaInventario/capturas
@@ -1469,18 +1469,34 @@ Las evidencias abarcan:
 
 - Estado inicial del repositorio.
 - Creación de la rama y del proyecto.
-- Commits iniciales.
-- Modelado del `struct`.
-- Menú con `do-while` y `switch`.
-- Registro y listado.
-- Búsqueda positiva y negativa.
-- Actualización de stock.
-- Guardado y carga CSV.
-- Validaciones.
-- Inventario completo.
-- Rechazo por capacidad máxima.
-- Depuración de `ref`.
-- Depuración de la asignación de stock.
+- Commit inicial de la práctica.
+- Modelado del `struct Producto` y del arreglo estático.
+- Menú interactivo con `do-while` y `switch`.
+- Registro y listado de productos.
+- Búsqueda positiva y negativa por ID.
+- Actualización directa del stock.
+- Guardado y carga del inventario en CSV.
+- Validaciones de ID, nombre, precio y stock.
+- Inventario completo con capacidad `10/10`.
+- Rechazo del registro número once.
+- Depuración del parámetro `ref`.
+- Depuración de la asignación directa sobre el `struct`.
+- Verificación final de compilación, archivos y estado de Git.
+- Publicación de la rama `feature/sistema-inventario`.
+- Integración de la Práctica 5 en `main` mediante `merge --no-ff`.
+- Publicación final de `main` en GitHub.
+
+Las cuatro evidencias de cierre son:
+
+| Número | Evidencia |
+|---:|---|
+| 13 | [Verificación final de la Práctica 5](Practica5/SistemaInventario/capturas/13_verificacion_final_practica5.png) |
+| 14 | [Publicación de la rama feature](Practica5/SistemaInventario/capturas/14_rama_feature_publicada.png) |
+| 15 | [Integración de la Práctica 5 en main](Practica5/SistemaInventario/capturas/15_merge_practica5_en_main.png) |
+| 16 | [Publicación final de main en GitHub](Practica5/SistemaInventario/capturas/16_main_publicada_en_github.png) |
+
+El índice completo de las 28 capturas se encuentra en el
+[README individual de la Práctica 5](Practica5/SistemaInventario/README.md).
 
 ## Flujo de Git de la Práctica 5
 
@@ -1490,20 +1506,45 @@ Rama de desarrollo:
 feature/sistema-inventario
 ```
 
-Commits semánticos registrados:
+### Commits registrados en la rama de desarrollo
 
 ```text
-chore: inicializar proyecto SistemaInventario
-feat: modelar productos con struct y arreglo
-feat: implementar menu interactivo del inventario
-feat: implementar registro y listado de productos
-feat: agregar busqueda de productos por id
-feat: implementar actualizacion de stock
-feat: implementar persistencia de inventario en csv
-chore: agregar configuracion de depuracion en vscode
-docs: documentar practica 5 y agregar evidencias
-docs: completar README detallado de la practica 5
+ac7c4a2 chore: inicializar proyecto SistemaInventario
+e69dfac feat: modelar productos con struct y arreglo
+b012ea7 feat: implementar menu interactivo del inventario
+cec0513 feat: implementar registro y listado de productos
+0a7adbc feat: agregar busqueda de productos por id
+e245450 feat: implementar actualizacion de stock
+7c279dc feat: implementar persistencia de inventario en csv
+1f3b664 chore: agregar configuracion de depuracion en vscode
+b40a3f2 docs: documentar practica 5 y agregar evidencias
+5c7af5b docs: completar README detallado de la practica 5
+7ea1391 docs: actualizar README principal con la practica 5
+cad43ba docs: agregar evidencias finales de verificacion y publicacion
 ```
+
+### Integración y cierre en `main`
+
+```text
+c7f839a Merge PR: Práctica 5 completada
+bdab1af docs: agregar evidencias finales de merge y publicacion
+```
+
+La integración se realizó mediante:
+
+```powershell
+git merge --no-ff feature/sistema-inventario -m "Merge PR: Práctica 5 completada"
+```
+
+El historial gráfico conservó la bifurcación de la rama de desarrollo y el
+commit explícito de integración. Posteriormente, `main` fue publicada y quedó
+sincronizada con `origin/main`.
+
+En total se conservaron:
+
+- Doce commits en la rama de desarrollo.
+- Un commit de integración mediante `merge --no-ff`.
+- Un commit documental final en `main`.
 
 ## Estado de la Práctica 5
 
@@ -1523,9 +1564,12 @@ docs: completar README detallado de la practica 5
 - Parámetro `ref` comprobado.
 - Modificación del `struct` comprobada.
 - README individual terminado.
-- Veinticuatro evidencias incorporadas.
-- Commits semánticos conservados.
+- Veintiocho evidencias incorporadas.
+- Doce commits de desarrollo, un commit de integración y un commit documental final conservados.
 - Compilación sin errores.
+- Rama `feature/sistema-inventario` publicada en GitHub.
+- Integración `--no-ff` completada en `main`.
+- `main` publicada y sincronizada con `origin/main`.
 - Repositorio sin cambios pendientes.
 
 ---
