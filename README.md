@@ -21,6 +21,7 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 | `Practica2/Practica2-Punteros` | Completado | Simulación de mecanismos de punteros en C# mediante parámetros `ref` y `out`, con documentación y evidencias. |
 | `Practica3/SimuladorHeap` | Completado | Simulador de arreglos dinámicos para analizar Stack, Heap, mutación de objetos y reasignación local de referencias. |
 | `Practica4/Semana4Recursividad` | Completado | Implementación segura de factorial y Fibonacci en versiones iterativas y recursivas, con medición mediante `Stopwatch` y análisis del Call Stack. |
+| `Practica5/SistemaInventario` | Completado | Sistema de gestión de inventario con `struct`, arreglo estático, validaciones, búsqueda por ID, actualización de stock, persistencia CSV y depuración paso a paso. |
 
 ---
 
@@ -33,6 +34,7 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 - PowerShell
 - Git
 - GitHub
+- Archivos CSV
 
 ---
 
@@ -64,6 +66,8 @@ dotnet --version
 
 ```text
 EstructuradeDatos_2026/
+├── .vscode/
+│   └── launch.json
 ├── Entregable1_Prueba/
 │   ├── Entregable1_Prueba.csproj
 │   └── Program.cs
@@ -97,6 +101,15 @@ EstructuradeDatos_2026/
 │       ├── Program.cs
 │       ├── README.md
 │       └── Semana4Recursividad.csproj
+├── Practica5/
+│   └── SistemaInventario/
+│       ├── capturas/
+│       ├── InventarioCsv.cs
+│       ├── Producto.cs
+│       ├── Program.cs
+│       ├── inventario.csv
+│       ├── README.md
+│       └── SistemaInventario.csproj
 ├── .gitignore
 └── README.md
 ```
@@ -1044,6 +1057,479 @@ El merge se realizó con `--no-ff` para preservar la bifurcación de la rama y m
 
 ---
 
+
+# Práctica 5 — Sistema de Gestión de Inventario Básico
+
+## Proyecto
+
+```text
+Practica5/SistemaInventario
+```
+
+## Objetivo
+
+Desarrollar una aplicación de consola para administrar un inventario mediante una estructura personalizada `Producto`, un arreglo estático de capacidad controlada y un menú persistente.
+
+La práctica integra los conceptos de:
+
+- Modelado de datos mediante `struct`.
+- Arreglos estáticos de estructuras.
+- Contadores lógicos para posiciones ocupadas.
+- Ciclos `do-while`.
+- Sentencias `switch`.
+- Parámetros modificables mediante `ref`.
+- Validación robusta de entradas.
+- Búsqueda lineal por identificador.
+- Modificación directa de elementos almacenados.
+- Persistencia mediante archivos CSV.
+- Manejo de excepciones de entrada y salida.
+- Depuración con breakpoints, Variables, Watch y Call Stack.
+- Control de versiones con ramas y commits semánticos.
+
+## Estructura principal
+
+```text
+Practica5/SistemaInventario/
+├── capturas/
+├── InventarioCsv.cs
+├── Producto.cs
+├── Program.cs
+├── inventario.csv
+├── README.md
+└── SistemaInventario.csproj
+```
+
+La configuración de depuración se encuentra en:
+
+```text
+.vscode/launch.json
+```
+
+La documentación completa de esta práctica está disponible en:
+
+[README individual de la Práctica 5](Practica5/SistemaInventario/README.md)
+
+## Modelado de `Producto`
+
+La entidad principal fue creada mediante un `struct`:
+
+```csharp
+public struct Producto
+{
+    public int ID;
+    public string Nombre;
+    public double Precio;
+    public int Stock;
+}
+```
+
+Cada registro conserva:
+
+| Campo | Tipo | Función |
+|---|---|---|
+| `ID` | `int` | Identificador único |
+| `Nombre` | `string` | Descripción del producto |
+| `Precio` | `double` | Precio unitario |
+| `Stock` | `int` | Cantidad disponible |
+
+La estructura incluye un constructor para inicializar todos los campos de forma coherente.
+
+## Arreglo estático y contador lógico
+
+El sistema utiliza una capacidad fija de diez productos:
+
+```csharp
+private const int CapacidadMaxima = 10;
+
+Producto[] inventario =
+    new Producto[CapacidadMaxima];
+```
+
+El número de posiciones ocupadas se controla mediante:
+
+```csharp
+int totalRegistros = 0;
+```
+
+La capacidad física permanece en diez posiciones, mientras que `totalRegistros` delimita las posiciones que contienen información válida.
+
+Los recorridos procesan únicamente:
+
+```text
+0 hasta totalRegistros - 1
+```
+
+## Menú interactivo
+
+La aplicación permanece activa mediante un ciclo `do-while` y procesa las opciones mediante `switch`.
+
+```text
+==================================================
+       SISTEMA DE GESTIÓN DE INVENTARIO
+==================================================
+Productos registrados: 0/10
+--------------------------------------------------
+1. Registrar producto
+2. Mostrar inventario
+3. Buscar producto por ID
+4. Actualizar stock
+5. Guardar inventario en archivo CSV
+6. Cargar inventario desde archivo CSV
+7. Salir
+--------------------------------------------------
+```
+
+| Opción | Operación |
+|---:|---|
+| `1` | Registrar producto |
+| `2` | Mostrar inventario |
+| `3` | Buscar producto por ID |
+| `4` | Actualizar stock |
+| `5` | Guardar inventario en CSV |
+| `6` | Cargar inventario desde CSV |
+| `7` | Salir |
+
+## Registro mediante `ref`
+
+El método de registro recibe el contador mediante referencia:
+
+```csharp
+private static void RegistrarProducto(
+    Producto[] inventario,
+    ref int totalRegistros)
+```
+
+Después de almacenar el producto se ejecuta:
+
+```csharp
+totalRegistros++;
+```
+
+Esto modifica la variable original declarada en `Main`, no una copia local.
+
+La operación valida:
+
+- Capacidad disponible.
+- ID numérico y positivo.
+- Ausencia de identificadores duplicados.
+- Nombre no vacío.
+- Precio mayor que cero.
+- Stock igual o mayor que cero.
+
+## Presentación del inventario
+
+El inventario se muestra en formato tabular:
+
+```text
+ID       NOMBRE                           PRECIO    STOCK
+--------------------------------------------------------------
+101      laptop hp                    $15,999.99        8
+102      teclado mecanico              $1,299.50       40
+103      mouse inalambrico                $599.90       20
+--------------------------------------------------------------
+Total de productos registrados: 3
+```
+
+Los precios se presentan con formato monetario correspondiente a México.
+
+## Búsqueda lineal por ID
+
+La localización de productos se realiza mediante:
+
+```csharp
+private static int BuscarIndicePorId(
+    Producto[] inventario,
+    int totalRegistros,
+    int idBuscado)
+```
+
+El método recorre únicamente las posiciones ocupadas y devuelve:
+
+- El índice del producto encontrado.
+- `-1` cuando el ID no existe.
+
+Se comprobaron tres escenarios:
+
+- Inventario vacío.
+- Producto existente.
+- Producto inexistente.
+
+## Actualización directa del stock
+
+Después de localizar el producto, el sistema modifica únicamente su cantidad:
+
+```csharp
+inventario[indiceEncontrado].Stock =
+    nuevoStock;
+```
+
+El ID, nombre y precio permanecen intactos.
+
+Ejemplo verificado:
+
+```text
+Producto:         Teclado Mecanico
+Stock anterior:   15
+Stock nuevo:      40
+Posición:         1
+```
+
+## Control de capacidad
+
+Antes de registrar se comprueba:
+
+```csharp
+if (totalRegistros >= inventario.Length)
+```
+
+Cuando el arreglo alcanza `10/10`, el sistema rechaza el registro número once:
+
+```text
+No es posible registrar más productos.
+El inventario alcanzó su capacidad máxima.
+```
+
+Esta condición evita accesos fuera de los límites del arreglo y previene `IndexOutOfRangeException`.
+
+## Persistencia CSV
+
+La lógica de archivos fue separada en:
+
+```text
+InventarioCsv.cs
+```
+
+### Guardado
+
+La opción `5` genera:
+
+```text
+inventario.csv
+```
+
+con una estructura semejante a:
+
+```csv
+ID;Nombre;Precio;Stock
+101;laptop hp;15999.99;8
+102;teclado mecanico;1299.5;40
+103;mouse inalambrico;599.9;20
+```
+
+El archivo utiliza:
+
+- Encabezado.
+- Separador `;`.
+- Codificación UTF-8.
+- Cultura invariante para valores numéricos.
+- Escape de campos con comillas.
+- Control de errores de escritura.
+
+### Carga
+
+La opción `6`:
+
+1. Comprueba la existencia del archivo.
+2. Lee y separa los campos.
+3. Valida cada registro.
+4. Rechaza datos inválidos.
+5. Evita IDs duplicados.
+6. Respeta la capacidad máxima.
+7. Reconstruye los productos.
+8. Actualiza `totalRegistros` mediante `ref`.
+
+Se verificó la recuperación de los tres productos en una ejecución nueva.
+
+## Manejo de excepciones
+
+Las operaciones de archivo controlan:
+
+```csharp
+UnauthorizedAccessException
+IOException
+```
+
+Además, se usa:
+
+```csharp
+File.Exists(NombreArchivo)
+```
+
+para evitar intentar cargar un archivo inexistente.
+
+## Depuración realizada
+
+La depuración se ejecutó en la terminal integrada de Visual Studio Code mediante:
+
+```text
+.vscode/launch.json
+```
+
+Se utilizaron:
+
+- Breakpoints.
+- Variables locales.
+- Panel `Watch`.
+- `Call Stack`.
+- `F10` para ejecución paso a paso.
+- `F5` para continuar.
+- `Shift + F5` para detener.
+
+### Comprobación de `ref`
+
+Antes de ejecutar:
+
+```csharp
+totalRegistros++;
+```
+
+se observó:
+
+```text
+totalRegistros = 0
+posicionUtilizada = 0
+```
+
+Después de `F10`:
+
+```text
+totalRegistros = 1
+posicionUtilizada = 0
+```
+
+Esto confirmó que el contador original fue modificado.
+
+### Comprobación del `struct` almacenado
+
+Antes de ejecutar la asignación:
+
+```text
+stockAnterior = 40
+nuevoStock = 55
+inventario[indiceEncontrado].Stock = 40
+```
+
+Después de ejecutarla:
+
+```text
+stockAnterior = 40
+nuevoStock = 55
+inventario[indiceEncontrado].Stock = 55
+```
+
+Esto confirmó que el cambio se realizó directamente sobre el elemento del arreglo.
+
+## Compilar la Práctica 5
+
+Desde la raíz del repositorio:
+
+```powershell
+dotnet restore ".\Practica5\SistemaInventario\SistemaInventario.csproj"
+dotnet build ".\Practica5\SistemaInventario\SistemaInventario.csproj"
+```
+
+## Ejecutar la Práctica 5
+
+```powershell
+dotnet run --project ".\Practica5\SistemaInventario\SistemaInventario.csproj"
+```
+
+## Pruebas realizadas
+
+| Prueba | Resultado |
+|---|---|
+| Compilación | Correcta |
+| Menú persistente | Correcto |
+| Registro de productos | Correcto |
+| ID inválido | Rechazado |
+| ID duplicado | Rechazado |
+| Nombre vacío | Rechazado |
+| Precio inválido | Rechazado |
+| Stock negativo | Rechazado |
+| Listado tabular | Correcto |
+| Búsqueda existente | Correcta |
+| Búsqueda inexistente | Controlada |
+| Actualización de stock | Correcta |
+| Inventario lleno | Controlado |
+| Guardado CSV | Correcto |
+| Carga CSV | Correcta |
+| Parámetro `ref` | Comprobado |
+| Modificación directa del `struct` | Comprobada |
+| Estado de Git | Limpio |
+
+## Evidencias
+
+La práctica contiene 24 capturas organizadas en:
+
+```text
+Practica5/SistemaInventario/capturas
+```
+
+Las evidencias abarcan:
+
+- Estado inicial del repositorio.
+- Creación de la rama y del proyecto.
+- Commits iniciales.
+- Modelado del `struct`.
+- Menú con `do-while` y `switch`.
+- Registro y listado.
+- Búsqueda positiva y negativa.
+- Actualización de stock.
+- Guardado y carga CSV.
+- Validaciones.
+- Inventario completo.
+- Rechazo por capacidad máxima.
+- Depuración de `ref`.
+- Depuración de la asignación de stock.
+
+## Flujo de Git de la Práctica 5
+
+Rama de desarrollo:
+
+```text
+feature/sistema-inventario
+```
+
+Commits semánticos registrados:
+
+```text
+chore: inicializar proyecto SistemaInventario
+feat: modelar productos con struct y arreglo
+feat: implementar menu interactivo del inventario
+feat: implementar registro y listado de productos
+feat: agregar busqueda de productos por id
+feat: implementar actualizacion de stock
+feat: implementar persistencia de inventario en csv
+chore: agregar configuracion de depuracion en vscode
+docs: documentar practica 5 y agregar evidencias
+docs: completar README detallado de la practica 5
+```
+
+## Estado de la Práctica 5
+
+- Proyecto creado con .NET 8.
+- `struct Producto` implementado.
+- Arreglo estático de diez posiciones.
+- Contador lógico implementado.
+- Menú con `do-while` y `switch`.
+- Registro y listado funcionales.
+- Validaciones robustas.
+- Búsqueda por ID.
+- Actualización directa de stock.
+- Control de capacidad máxima.
+- Persistencia CSV.
+- Manejo de errores de archivo.
+- Depuración configurada.
+- Parámetro `ref` comprobado.
+- Modificación del `struct` comprobada.
+- README individual terminado.
+- Veinticuatro evidencias incorporadas.
+- Commits semánticos conservados.
+- Compilación sin errores.
+- Repositorio sin cambios pendientes.
+
+---
+
 ## Propósito académico
 
 Este repositorio fue desarrollado con fines educativos para comprender, implementar y documentar conceptos de:
@@ -1054,6 +1540,12 @@ Este repositorio fue desarrollado con fines educativos para comprender, implemen
 - Validación de datos.
 - Flujo de control.
 - Parámetros `ref` y `out`.
+- Estructuras personalizadas mediante `struct`.
+- Arreglos estáticos y control lógico de posiciones ocupadas.
+- Menús persistentes con `do-while` y `switch`.
+- Búsqueda lineal y actualización de registros.
+- Persistencia y recuperación mediante archivos CSV.
+- Manejo de excepciones de entrada y salida.
 - Tipos de valor y tipos de referencia.
 - Stack y Heap.
 - Recursividad segura.
@@ -1067,6 +1559,7 @@ Este repositorio fue desarrollado con fines educativos para comprender, implemen
 - Reasignación local de referencias.
 - Inmutabilidad de `string`.
 - Depuración de aplicaciones .NET.
+- Uso de breakpoints, Variables, Watch y Call Stack.
 - Organización de proyectos en C#.
 - Uso de ramas y commits atómicos.
 - Integración mediante merges `--no-ff`.
