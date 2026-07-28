@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 
 namespace SistemaInventario;
 
@@ -11,14 +12,22 @@ internal static class Program
 
     private static void Main()
     {
+        // Configuración regional para mostrar precios en pesos mexicanos.
         CultureInfo.DefaultThreadCurrentCulture =
             CultureInfo.GetCultureInfo("es-MX");
 
         CultureInfo.DefaultThreadCurrentUICulture =
             CultureInfo.GetCultureInfo("es-MX");
 
+        // Permite mostrar correctamente caracteres acentuados.
+        Console.OutputEncoding = Encoding.UTF8;
+
+        // Arreglo estático de estructuras Producto.
         Producto[] inventario = new Producto[CapacidadMaxima];
+
+        // Cantidad de posiciones ocupadas dentro del arreglo.
         int totalRegistros = 0;
+
         int opcion;
 
         Console.Title = "Sistema de Gestión de Inventario";
@@ -35,27 +44,36 @@ internal static class Program
             switch (opcion)
             {
                 case 1:
-                    RegistrarProducto(inventario, ref totalRegistros);
+                    RegistrarProducto(
+                        inventario,
+                        ref totalRegistros);
                     break;
 
                 case 2:
-                    MostrarInventario(inventario, totalRegistros);
+                    MostrarInventario(
+                        inventario,
+                        totalRegistros);
                     break;
 
                 case 3:
-                    MostrarModuloPendiente("BUSCAR PRODUCTO POR ID");
+                    BuscarProductoPorId(
+                        inventario,
+                        totalRegistros);
                     break;
 
                 case 4:
-                    MostrarModuloPendiente("ACTUALIZAR STOCK");
+                    MostrarModuloPendiente(
+                        "ACTUALIZAR STOCK");
                     break;
 
                 case 5:
-                    MostrarModuloPendiente("GUARDAR INVENTARIO EN CSV");
+                    MostrarModuloPendiente(
+                        "GUARDAR INVENTARIO EN ARCHIVO CSV");
                     break;
 
                 case 6:
-                    MostrarModuloPendiente("CARGAR INVENTARIO DESDE CSV");
+                    MostrarModuloPendiente(
+                        "CARGAR INVENTARIO DESDE ARCHIVO CSV");
                     break;
 
                 case 7:
@@ -72,15 +90,27 @@ internal static class Program
     }
 
     /// <summary>
-    /// Muestra las opciones disponibles y el estado actual del inventario.
+    /// Muestra las opciones disponibles y el estado del inventario.
     /// </summary>
-    private static void MostrarMenu(int totalRegistros, int capacidad)
+    private static void MostrarMenu(
+        int totalRegistros,
+        int capacidad)
     {
-        Console.WriteLine("==================================================");
-        Console.WriteLine("       SISTEMA DE GESTIÓN DE INVENTARIO");
-        Console.WriteLine("==================================================");
-        Console.WriteLine($"Productos registrados: {totalRegistros}/{capacidad}");
-        Console.WriteLine("--------------------------------------------------");
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            "       SISTEMA DE GESTIÓN DE INVENTARIO");
+
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            $"Productos registrados: {totalRegistros}/{capacidad}");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+
         Console.WriteLine("1. Registrar producto");
         Console.WriteLine("2. Mostrar inventario");
         Console.WriteLine("3. Buscar producto por ID");
@@ -88,26 +118,38 @@ internal static class Program
         Console.WriteLine("5. Guardar inventario en archivo CSV");
         Console.WriteLine("6. Cargar inventario desde archivo CSV");
         Console.WriteLine("7. Salir");
-        Console.WriteLine("--------------------------------------------------");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
     }
 
     /// <summary>
     /// Registra un producto en la siguiente posición disponible.
-    /// El parámetro ref permite modificar el contador original.
+    /// El parámetro ref modifica el contador original.
     /// </summary>
     private static void RegistrarProducto(
         Producto[] inventario,
         ref int totalRegistros)
     {
-        Console.WriteLine("==================================================");
-        Console.WriteLine("              REGISTRAR PRODUCTO");
-        Console.WriteLine("==================================================");
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            "              REGISTRAR PRODUCTO");
+
+        Console.WriteLine(
+            "==================================================");
+
         Console.WriteLine();
 
         if (totalRegistros >= inventario.Length)
         {
-            Console.WriteLine("No es posible registrar más productos.");
-            Console.WriteLine("El inventario alcanzó su capacidad máxima.");
+            Console.WriteLine(
+                "No es posible registrar más productos.");
+
+            Console.WriteLine(
+                "El inventario alcanzó su capacidad máxima.");
+
             return;
         }
 
@@ -115,51 +157,86 @@ internal static class Program
 
         while (true)
         {
-            id = LeerEnteroPositivo("ID del producto: ");
+            id = LeerEnteroPositivo(
+                "ID del producto: ");
 
-            if (BuscarIndicePorId(inventario, totalRegistros, id) == -1)
+            int indiceExistente = BuscarIndicePorId(
+                inventario,
+                totalRegistros,
+                id);
+
+            if (indiceExistente == -1)
             {
                 break;
             }
 
+            Console.WriteLine();
             Console.WriteLine(
                 $"El ID {id} ya pertenece a otro producto.");
-            Console.WriteLine("Escribe un identificador diferente.");
+
+            Console.WriteLine(
+                "Escribe un identificador diferente.");
+
             Console.WriteLine();
         }
 
-        string nombre = LeerTextoNoVacio("Nombre del producto: ");
-        double precio = LeerPrecioPositivo("Precio unitario: ");
-        int stock = LeerEnteroNoNegativo("Cantidad disponible: ");
+        string nombre = LeerTextoNoVacio(
+            "Nombre del producto: ");
 
-        inventario[totalRegistros] =
-            new Producto(id, nombre, precio, stock);
+        double precio = LeerPrecioPositivo(
+            "Precio unitario: ");
+
+        int stock = LeerEnteroNoNegativo(
+            "Cantidad disponible: ");
+
+        inventario[totalRegistros] = new Producto(
+            id,
+            nombre,
+            precio,
+            stock);
+
+        int posicionUtilizada = totalRegistros;
 
         totalRegistros++;
 
         Console.WriteLine();
-        Console.WriteLine("Producto registrado correctamente.");
-        Console.WriteLine($"Posición utilizada: {totalRegistros - 1}");
         Console.WriteLine(
-            $"Espacios disponibles: {inventario.Length - totalRegistros}");
+            "Producto registrado correctamente.");
+
+        Console.WriteLine(
+            $"Posición utilizada: {posicionUtilizada}");
+
+        Console.WriteLine(
+            $"Espacios disponibles: " +
+            $"{inventario.Length - totalRegistros}");
     }
 
     /// <summary>
-    /// Recorre y muestra únicamente las posiciones ocupadas del arreglo.
+    /// Muestra las posiciones ocupadas del arreglo.
     /// </summary>
     private static void MostrarInventario(
         Producto[] inventario,
         int totalRegistros)
     {
-        Console.WriteLine("==============================================================");
-        Console.WriteLine("                    INVENTARIO ACTUAL");
-        Console.WriteLine("==============================================================");
+        Console.WriteLine(
+            "==============================================================");
+
+        Console.WriteLine(
+            "                    INVENTARIO ACTUAL");
+
+        Console.WriteLine(
+            "==============================================================");
+
         Console.WriteLine();
 
         if (totalRegistros == 0)
         {
-            Console.WriteLine("El inventario está vacío.");
-            Console.WriteLine("Primero registra al menos un producto.");
+            Console.WriteLine(
+                "El inventario está vacío.");
+
+            Console.WriteLine(
+                "Primero registra al menos un producto.");
+
             return;
         }
 
@@ -198,8 +275,91 @@ internal static class Program
     }
 
     /// <summary>
-    /// Realiza una búsqueda lineal y devuelve el índice del ID.
-    /// Retorna -1 cuando no existe una coincidencia.
+    /// Solicita un ID y muestra el producto encontrado.
+    /// </summary>
+    private static void BuscarProductoPorId(
+        Producto[] inventario,
+        int totalRegistros)
+    {
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            "           BUSCAR PRODUCTO POR ID");
+
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine();
+
+        if (totalRegistros == 0)
+        {
+            Console.WriteLine(
+                "No es posible realizar la búsqueda.");
+
+            Console.WriteLine(
+                "El inventario está vacío.");
+
+            return;
+        }
+
+        int idBuscado = LeerEnteroPositivo(
+            "Escribe el ID que deseas buscar: ");
+
+        int indiceEncontrado = BuscarIndicePorId(
+            inventario,
+            totalRegistros,
+            idBuscado);
+
+        Console.WriteLine();
+
+        if (indiceEncontrado == -1)
+        {
+            Console.WriteLine(
+                $"No se encontró un producto con el ID {idBuscado}.");
+
+            Console.WriteLine(
+                "Verifica el identificador e intenta nuevamente.");
+
+            return;
+        }
+
+        Producto productoEncontrado =
+            inventario[indiceEncontrado];
+
+        string precioFormateado =
+            productoEncontrado.Precio.ToString(
+                "C2",
+                CultureInfo.CurrentCulture);
+
+        Console.WriteLine(
+            "Producto encontrado correctamente.");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+
+        Console.WriteLine(
+            $"Posición en el arreglo: {indiceEncontrado}");
+
+        Console.WriteLine(
+            $"ID:                     {productoEncontrado.ID}");
+
+        Console.WriteLine(
+            $"Nombre:                 {productoEncontrado.Nombre}");
+
+        Console.WriteLine(
+            $"Precio:                 {precioFormateado}");
+
+        Console.WriteLine(
+            $"Stock disponible:       {productoEncontrado.Stock}");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+    }
+
+    /// <summary>
+    /// Realiza una búsqueda lineal dentro de las posiciones ocupadas.
+    /// Devuelve el índice encontrado o -1 si el ID no existe.
     /// </summary>
     private static int BuscarIndicePorId(
         Producto[] inventario,
@@ -218,16 +378,23 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita una opción numérica comprendida entre 1 y 7.
+    /// Solicita una opción válida comprendida entre 1 y 7.
     /// </summary>
     private static int LeerOpcionMenu()
     {
         while (true)
         {
-            Console.Write("Selecciona una opción: ");
+            Console.Write(
+                "Selecciona una opción: ");
+
             string? entrada = Console.ReadLine();
 
-            if (int.TryParse(entrada, out int opcion) &&
+            bool conversionCorrecta =
+                int.TryParse(
+                    entrada,
+                    out int opcion);
+
+            if (conversionCorrecta &&
                 opcion >= 1 &&
                 opcion <= 7)
             {
@@ -235,67 +402,88 @@ internal static class Program
             }
 
             Console.WriteLine();
+
             Console.WriteLine(
                 "Entrada no válida. Escribe un número del 1 al 7.");
+
             Console.WriteLine();
         }
     }
 
     /// <summary>
-    /// Solicita un número entero mayor que cero.
+    /// Solicita un entero mayor que cero.
     /// </summary>
-    private static int LeerEnteroPositivo(string mensaje)
+    private static int LeerEnteroPositivo(
+        string mensaje)
     {
         while (true)
         {
             Console.Write(mensaje);
+
             string? entrada = Console.ReadLine();
 
-            if (int.TryParse(entrada, out int valor) && valor > 0)
+            bool conversionCorrecta =
+                int.TryParse(
+                    entrada,
+                    out int valor);
+
+            if (conversionCorrecta && valor > 0)
             {
                 return valor;
             }
 
             Console.WriteLine(
-                "Entrada no válida. Escribe un entero mayor que cero.");
+                "Entrada no válida. " +
+                "Escribe un entero mayor que cero.");
         }
     }
 
     /// <summary>
-    /// Solicita un número entero igual o mayor que cero.
+    /// Solicita un entero igual o mayor que cero.
     /// </summary>
-    private static int LeerEnteroNoNegativo(string mensaje)
+    private static int LeerEnteroNoNegativo(
+        string mensaje)
     {
         while (true)
         {
             Console.Write(mensaje);
+
             string? entrada = Console.ReadLine();
 
-            if (int.TryParse(entrada, out int valor) && valor >= 0)
+            bool conversionCorrecta =
+                int.TryParse(
+                    entrada,
+                    out int valor);
+
+            if (conversionCorrecta && valor >= 0)
             {
                 return valor;
             }
 
             Console.WriteLine(
-                "Entrada no válida. Escribe un entero igual o mayor que cero.");
+                "Entrada no válida. " +
+                "Escribe un entero igual o mayor que cero.");
         }
     }
 
     /// <summary>
-    /// Solicita un precio numérico mayor que cero.
+    /// Solicita un precio mayor que cero.
     /// </summary>
-    private static double LeerPrecioPositivo(string mensaje)
+    private static double LeerPrecioPositivo(
+        string mensaje)
     {
         while (true)
         {
             Console.Write(mensaje);
+
             string? entrada = Console.ReadLine();
 
-            bool conversionCorrecta = double.TryParse(
-                entrada,
-                NumberStyles.Number,
-                CultureInfo.CurrentCulture,
-                out double precio);
+            bool conversionCorrecta =
+                double.TryParse(
+                    entrada,
+                    NumberStyles.Number,
+                    CultureInfo.CurrentCulture,
+                    out double precio);
 
             if (conversionCorrecta && precio > 0)
             {
@@ -303,18 +491,21 @@ internal static class Program
             }
 
             Console.WriteLine(
-                "Entrada no válida. Escribe un precio mayor que cero.");
+                "Entrada no válida. " +
+                "Escribe un precio mayor que cero.");
         }
     }
 
     /// <summary>
-    /// Solicita una cadena que no esté vacía ni contenga solo espacios.
+    /// Solicita texto que no esté vacío.
     /// </summary>
-    private static string LeerTextoNoVacio(string mensaje)
+    private static string LeerTextoNoVacio(
+        string mensaje)
     {
         while (true)
         {
             Console.Write(mensaje);
+
             string? entrada = Console.ReadLine();
 
             if (!string.IsNullOrWhiteSpace(entrada))
@@ -323,12 +514,13 @@ internal static class Program
             }
 
             Console.WriteLine(
-                "Entrada no válida. El texto no puede quedar vacío.");
+                "Entrada no válida. " +
+                "El texto no puede quedar vacío.");
         }
     }
 
     /// <summary>
-    /// Limita la longitud visual de los nombres dentro de la tabla.
+    /// Limita la longitud visual de un texto dentro de la tabla.
     /// </summary>
     private static string TruncarTexto(
         string texto,
@@ -343,16 +535,27 @@ internal static class Program
     }
 
     /// <summary>
-    /// Muestra temporalmente una sección pendiente.
+    /// Muestra una sección pendiente de implementación.
     /// </summary>
-    private static void MostrarModuloPendiente(string titulo)
+    private static void MostrarModuloPendiente(
+        string titulo)
     {
-        Console.WriteLine("==================================================");
-        Console.WriteLine($"   {titulo}");
-        Console.WriteLine("==================================================");
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            $"   {titulo}");
+
+        Console.WriteLine(
+            "==================================================");
+
         Console.WriteLine();
-        Console.WriteLine("Módulo preparado. Su lógica será implementada");
-        Console.WriteLine("en una etapa posterior de la práctica.");
+
+        Console.WriteLine(
+            "Módulo preparado. Su lógica será implementada");
+
+        Console.WriteLine(
+            "en una etapa posterior de la práctica.");
     }
 
     /// <summary>
@@ -360,22 +563,36 @@ internal static class Program
     /// </summary>
     private static void MostrarDespedida()
     {
-        Console.WriteLine("==================================================");
-        Console.WriteLine("       SISTEMA DE GESTIÓN DE INVENTARIO");
-        Console.WriteLine("==================================================");
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            "       SISTEMA DE GESTIÓN DE INVENTARIO");
+
+        Console.WriteLine(
+            "==================================================");
+
         Console.WriteLine();
-        Console.WriteLine("El sistema se cerró correctamente.");
-        Console.WriteLine("Gracias por utilizar la aplicación.");
+
+        Console.WriteLine(
+            "El sistema se cerró correctamente.");
+
+        Console.WriteLine(
+            "Gracias por utilizar la aplicación.");
+
         Console.WriteLine();
     }
 
     /// <summary>
-    /// Detiene temporalmente el programa antes de volver al menú.
+    /// Detiene temporalmente la aplicación antes de volver al menú.
     /// </summary>
     private static void Pausar()
     {
         Console.WriteLine();
-        Console.WriteLine("Presiona ENTER para volver al menú...");
+
+        Console.WriteLine(
+            "Presiona ENTER para volver al menú...");
+
         Console.ReadLine();
     }
 }
