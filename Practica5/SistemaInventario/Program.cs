@@ -19,13 +19,13 @@ internal static class Program
         CultureInfo.DefaultThreadCurrentUICulture =
             CultureInfo.GetCultureInfo("es-MX");
 
-        // Permite mostrar correctamente caracteres acentuados.
+        // Permite mostrar correctamente caracteres especiales y acentos.
         Console.OutputEncoding = Encoding.UTF8;
 
         // Arreglo estático de estructuras Producto.
         Producto[] inventario = new Producto[CapacidadMaxima];
 
-        // Cantidad de posiciones ocupadas dentro del arreglo.
+        // Indica cuántas posiciones del arreglo contienen productos válidos.
         int totalRegistros = 0;
 
         int opcion;
@@ -36,7 +36,10 @@ internal static class Program
         {
             Console.Clear();
 
-            MostrarMenu(totalRegistros, inventario.Length);
+            MostrarMenu(
+                totalRegistros,
+                inventario.Length);
+
             opcion = LeerOpcionMenu();
 
             Console.Clear();
@@ -62,8 +65,9 @@ internal static class Program
                     break;
 
                 case 4:
-                    MostrarModuloPendiente(
-                        "ACTUALIZAR STOCK");
+                    ActualizarStock(
+                        inventario,
+                        totalRegistros);
                     break;
 
                 case 5:
@@ -90,7 +94,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Muestra las opciones disponibles y el estado del inventario.
+    /// Muestra el menú principal y el estado actual del inventario.
     /// </summary>
     private static void MostrarMenu(
         int totalRegistros,
@@ -125,7 +129,7 @@ internal static class Program
 
     /// <summary>
     /// Registra un producto en la siguiente posición disponible.
-    /// El parámetro ref modifica el contador original.
+    /// El parámetro ref permite modificar el contador original.
     /// </summary>
     private static void RegistrarProducto(
         Producto[] inventario,
@@ -171,6 +175,7 @@ internal static class Program
             }
 
             Console.WriteLine();
+
             Console.WriteLine(
                 $"El ID {id} ya pertenece a otro producto.");
 
@@ -189,30 +194,40 @@ internal static class Program
         int stock = LeerEnteroNoNegativo(
             "Cantidad disponible: ");
 
-        inventario[totalRegistros] = new Producto(
+        int posicionUtilizada = totalRegistros;
+
+        inventario[posicionUtilizada] = new Producto(
             id,
             nombre,
             precio,
             stock);
 
-        int posicionUtilizada = totalRegistros;
-
+        // Se modifica directamente el contador original recibido por ref.
         totalRegistros++;
 
         Console.WriteLine();
+
         Console.WriteLine(
             "Producto registrado correctamente.");
 
         Console.WriteLine(
-            $"Posición utilizada: {posicionUtilizada}");
+            "--------------------------------------------------");
 
         Console.WriteLine(
-            $"Espacios disponibles: " +
-            $"{inventario.Length - totalRegistros}");
+            $"Posición utilizada:  {posicionUtilizada}");
+
+        Console.WriteLine(
+            $"Productos registrados: {totalRegistros}");
+
+        Console.WriteLine(
+            $"Espacios disponibles: {inventario.Length - totalRegistros}");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
     }
 
     /// <summary>
-    /// Muestra las posiciones ocupadas del arreglo.
+    /// Recorre el arreglo y muestra únicamente las posiciones ocupadas.
     /// </summary>
     private static void MostrarInventario(
         Producto[] inventario,
@@ -275,7 +290,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un ID y muestra el producto encontrado.
+    /// Solicita un ID y muestra la información del producto encontrado.
     /// </summary>
     private static void BuscarProductoPorId(
         Producto[] inventario,
@@ -358,8 +373,130 @@ internal static class Program
     }
 
     /// <summary>
+    /// Busca un producto mediante su ID y modifica únicamente su stock.
+    /// </summary>
+    private static void ActualizarStock(
+        Producto[] inventario,
+        int totalRegistros)
+    {
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine(
+            "               ACTUALIZAR STOCK");
+
+        Console.WriteLine(
+            "==================================================");
+
+        Console.WriteLine();
+
+        if (totalRegistros == 0)
+        {
+            Console.WriteLine(
+                "No es posible actualizar productos.");
+
+            Console.WriteLine(
+                "El inventario está vacío.");
+
+            return;
+        }
+
+        int idBuscado = LeerEnteroPositivo(
+            "Escribe el ID del producto: ");
+
+        int indiceEncontrado = BuscarIndicePorId(
+            inventario,
+            totalRegistros,
+            idBuscado);
+
+        Console.WriteLine();
+
+        if (indiceEncontrado == -1)
+        {
+            Console.WriteLine(
+                $"No se encontró un producto con el ID {idBuscado}.");
+
+            Console.WriteLine(
+                "No se realizó ninguna modificación.");
+
+            return;
+        }
+
+        Producto productoActual =
+            inventario[indiceEncontrado];
+
+        string precioFormateado =
+            productoActual.Precio.ToString(
+                "C2",
+                CultureInfo.CurrentCulture);
+
+        Console.WriteLine(
+            "Producto localizado correctamente.");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+
+        Console.WriteLine(
+            $"Posición:         {indiceEncontrado}");
+
+        Console.WriteLine(
+            $"ID:               {productoActual.ID}");
+
+        Console.WriteLine(
+            $"Nombre:           {productoActual.Nombre}");
+
+        Console.WriteLine(
+            $"Precio:           {precioFormateado}");
+
+        Console.WriteLine(
+            $"Stock actual:     {productoActual.Stock}");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+
+        Console.WriteLine();
+
+        int nuevoStock = LeerEnteroNoNegativo(
+            "Escribe el nuevo stock: ");
+
+        int stockAnterior =
+            inventario[indiceEncontrado].Stock;
+
+        /*
+         * El elemento del arreglo es una variable de tipo Producto.
+         * Se modifica directamente el campo Stock del struct almacenado
+         * en la posición encontrada.
+         */
+        inventario[indiceEncontrado].Stock =
+            nuevoStock;
+
+        Console.WriteLine();
+
+        Console.WriteLine(
+            "Stock actualizado correctamente.");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+
+        Console.WriteLine(
+            $"Producto:         {inventario[indiceEncontrado].Nombre}");
+
+        Console.WriteLine(
+            $"Stock anterior:   {stockAnterior}");
+
+        Console.WriteLine(
+            $"Stock nuevo:      {inventario[indiceEncontrado].Stock}");
+
+        Console.WriteLine(
+            $"Posición:         {indiceEncontrado}");
+
+        Console.WriteLine(
+            "--------------------------------------------------");
+    }
+
+    /// <summary>
     /// Realiza una búsqueda lineal dentro de las posiciones ocupadas.
-    /// Devuelve el índice encontrado o -1 si el ID no existe.
+    /// Devuelve el índice encontrado o -1 cuando el ID no existe.
     /// </summary>
     private static int BuscarIndicePorId(
         Producto[] inventario,
@@ -378,7 +515,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita una opción válida comprendida entre 1 y 7.
+    /// Solicita y valida una opción del menú entre 1 y 7.
     /// </summary>
     private static int LeerOpcionMenu()
     {
@@ -411,7 +548,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un entero mayor que cero.
+    /// Solicita un número entero mayor que cero.
     /// </summary>
     private static int LeerEnteroPositivo(
         string mensaje)
@@ -439,7 +576,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un entero igual o mayor que cero.
+    /// Solicita un número entero igual o mayor que cero.
     /// </summary>
     private static int LeerEnteroNoNegativo(
         string mensaje)
@@ -467,7 +604,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita un precio mayor que cero.
+    /// Solicita un precio numérico mayor que cero.
     /// </summary>
     private static double LeerPrecioPositivo(
         string mensaje)
@@ -497,7 +634,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Solicita texto que no esté vacío.
+    /// Solicita texto que no esté vacío ni contenga solo espacios.
     /// </summary>
     private static string LeerTextoNoVacio(
         string mensaje)
@@ -520,7 +657,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Limita la longitud visual de un texto dentro de la tabla.
+    /// Limita la longitud visual de los nombres dentro de la tabla.
     /// </summary>
     private static string TruncarTexto(
         string texto,
@@ -535,7 +672,7 @@ internal static class Program
     }
 
     /// <summary>
-    /// Muestra una sección pendiente de implementación.
+    /// Muestra temporalmente una sección todavía no implementada.
     /// </summary>
     private static void MostrarModuloPendiente(
         string titulo)
