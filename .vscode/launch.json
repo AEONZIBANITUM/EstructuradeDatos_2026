@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Depurar SistemaInventario",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/Practica5/SistemaInventario/bin/Debug/net8.0/SistemaInventario.dll",
+            "cwd": "${workspaceFolder}/Practica5/SistemaInventario",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}
