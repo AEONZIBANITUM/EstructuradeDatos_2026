@@ -1,6 +1,6 @@
 # Práctica 6 — Composición de Cámaras Virtuales mediante Structs Anidados
 
-Simulación de un sistema de cámara cinematográfica virtual desarrollado en **C# con .NET 8**, utilizando estructuras personalizadas anidadas, paso de parámetros mediante `ref`, interpolación lineal progresiva y depuración paso a paso.
+Simulación de un sistema de cámara cinematográfica virtual desarrollado en **C# con .NET 8**, utilizando estructuras personalizadas anidadas, paso de parámetros mediante `ref`, interpolación lineal progresiva, depuración paso a paso y control de versiones con Git y GitHub.
 
 ---
 
@@ -9,14 +9,17 @@ Simulación de un sistema de cámara cinematográfica virtual desarrollado en **
 | Dato | Información |
 |---|---|
 | Alumno | José Paulo Santana Ramírez |
+| Matrícula | 14868430 |
 | Materia | Estructura de Datos |
 | Ciclo | 26-3 |
-| Práctica | Práctica 6 |
+| Práctica | Práctica 6 — última práctica del bloque |
 | Lenguaje | C# |
-| Framework | .NET 8 |
+| Framework | .NET 8 (`net8.0`) |
 | Entorno de desarrollo | Visual Studio Code |
 | Control de versiones | Git y GitHub |
 | Rama de desarrollo | `feature/camara-cinematica` |
+| Rama de integración | `main` |
+| Fecha de cierre | 28 de julio de 2026 |
 
 ---
 
@@ -24,25 +27,27 @@ Simulación de un sistema de cámara cinematográfica virtual desarrollado en **
 
 La práctica implementa una simulación numérica de una cámara cinematográfica virtual que se desplaza progresivamente desde una posición inicial hacia una posición objetivo.
 
-La cámara también modifica gradualmente el punto tridimensional hacia el cual dirige su enfoque.
+La cámara también modifica gradualmente el punto tridimensional hacia el cual dirige su enfoque. Como se trata de una aplicación de consola, el movimiento se representa mediante la impresión de las coordenadas de posición y foco durante una secuencia de 20 frames.
 
-El sistema fue desarrollado como una aplicación de consola, por lo que el movimiento de la cámara se representa mediante la impresión de sus coordenadas durante una secuencia de 20 frames.
-
-La práctica integra los siguientes conceptos:
+El proyecto integra los siguientes conceptos:
 
 - Modelado de datos mediante `struct`.
 - Composición de estructuras anidadas.
 - Tipos por valor.
 - Paso de parámetros mediante `ref`.
-- Modificación directa de una variable original.
+- Modificación directa de la variable original.
 - Interpolación lineal manual.
 - Simulación de frames.
 - Formateo de salida en consola.
 - Depuración mediante breakpoints.
 - Inspección de variables anidadas.
+- Uso de Variables, Watch y Call Stack.
 - Implementación de un segundo rig cinematográfico.
 - Corte instantáneo entre configuraciones de cámara.
-- Control de versiones mediante Git.
+- Diagnóstico de una incidencia de AppHost en Windows.
+- Control de versiones mediante ramas y commits semánticos.
+- Integración mediante `merge --no-ff`.
+- Publicación de la rama feature y de `main` en GitHub.
 
 ---
 
@@ -62,40 +67,88 @@ Construir un sistema de cámara virtual capaz de modificar progresivamente su po
 - Utilizar `ref` para modificar el rig original.
 - Aplicar interpolación lineal en los seis componentes tridimensionales.
 - Ejecutar una simulación de 20 frames.
-- Mostrar la convergencia de los valores.
+- Mostrar la convergencia progresiva de los valores.
 - Crear un segundo rig denominado `CAM_CLOSEUP`.
 - Implementar una función de corte instantáneo.
 - Comprobar mediante depuración el efecto del paso por referencia.
-- Documentar el proceso mediante evidencias y commits semánticos.
+- Documentar el proceso mediante capturas y commits semánticos.
+- Publicar la rama de desarrollo.
+- Integrar la práctica en `main` mediante `merge --no-ff`.
+- Publicar el cierre definitivo en GitHub.
 
 ---
 
 ## Estructura del proyecto
 
 ```text
-Practica6/
-└── CamaraCinematica/
-    ├── capturas/
-    ├── bin/
-    ├── obj/
-    ├── CamaraCinematica.csproj
-    ├── Practica6_JosePauloSantanaRamirez.cs
-    └── README.md
+EstructuradeDatos_2026/
+└── Practica6/
+    └── CamaraCinematica/
+        ├── capturas/
+        ├── bin/
+        ├── obj/
+        ├── CamaraCinematica.csproj
+        ├── Practica6_JosePauloSantanaRamirez.cs
+        └── README.md
 ```
 
-Los directorios `bin` y `obj` son generados automáticamente durante la compilación y están excluidos del control de versiones mediante `.gitignore`.
+Los directorios `bin` y `obj` son generados automáticamente durante la compilación y permanecen excluidos del control de versiones mediante el archivo `.gitignore` de la raíz.
 
-El proyecto contiene un único archivo fuente de C#:
+El proyecto conserva un único archivo fuente de C#:
 
 ```text
 Practica6_JosePauloSantanaRamirez.cs
 ```
 
+Dentro de ese archivo se encuentran:
+
+```text
+Posicion
+Foco
+CamaraCinematica
+Program
+├── Main
+├── ActualizarCamara
+├── ImprimirEstado
+└── CortarA
+```
+
+---
+
+## Fundamentos aplicados
+
+### Tipos por valor
+
+Los `structs` de C# son tipos por valor. Esto significa que, de forma predeterminada, una asignación o un envío como parámetro produce una copia independiente del valor.
+
+En esta práctica, ese comportamiento es especialmente importante porque `CamaraCinematica` contiene a su vez dos estructuras adicionales.
+
+### Composición
+
+La composición permite agrupar datos relacionados dentro de una estructura principal:
+
+```text
+CamaraCinematica
+├── nombre
+├── fov
+├── velocidad
+├── pos : Posicion
+│   ├── x
+│   ├── y
+│   └── z
+└── foco : Foco
+    ├── x
+    ├── y
+    └── z
+```
+
+### Paso por referencia
+
+El modificador `ref` permite que un método trabaje directamente con la variable original, evitando que las modificaciones se realicen sobre una copia temporal del `struct`.
+
 ---
 
 ## Modelo de datos
-
-El sistema utiliza tres estructuras personalizadas.
 
 ### `Posicion`
 
@@ -138,30 +191,7 @@ public struct CamaraCinematica
 }
 ```
 
----
-
-## Composición de las estructuras
-
-La estructura lógica del rig es la siguiente:
-
-```text
-CamaraCinematica
-├── nombre
-├── fov
-├── velocidad
-├── pos : Posicion
-│   ├── x
-│   ├── y
-│   └── z
-└── foco : Foco
-    ├── x
-    ├── y
-    └── z
-```
-
-`CamaraCinematica` contiene directamente una estructura `Posicion` y una estructura `Foco`.
-
-Al tratarse de estructuras, sus valores se copian de forma predeterminada cuando se asignan o se envían como parámetros sin modificadores.
+Todos los campos fueron declarados como `public` e inicializados antes de ser utilizados.
 
 ---
 
@@ -187,7 +217,7 @@ CAM_PRINCIPAL
 | FOV | `60f` |
 | Velocidad | `0.08f` |
 
-La estructura se inicializa mediante un inicializador de objetos:
+La estructura fue inicializada de forma completa:
 
 ```csharp
 CamaraCinematica camara = new CamaraCinematica
@@ -292,9 +322,7 @@ El modificador `ref` permite que el método trabaje directamente con la variable
 
 Sin `ref`, el método recibiría una copia del `struct` y las modificaciones se perderían al finalizar la llamada.
 
----
-
-## Interpolación de posición
+### Interpolación de posición
 
 La fórmula se aplica individualmente sobre los tres ejes de la posición:
 
@@ -309,9 +337,7 @@ cam.pos.z +=
     (posicionObjetivo.z - cam.pos.z) * alpha;
 ```
 
----
-
-## Interpolación del foco
+### Interpolación del foco
 
 La misma operación se aplica sobre los tres componentes del foco:
 
@@ -526,20 +552,14 @@ El nombre del rig principal se conserva para demostrar que se modificó el mismo
 ### Antes del corte
 
 ```text
-[Frame 000] CAM_PRINCIPAL |
-POS(1.89, 2.57, -5.57) |
-FOCO(0.00, 0.81, 0.00)
-
+[Frame 000] CAM_PRINCIPAL | POS(1.89, 2.57, -5.57) | FOCO(0.00, 0.81, 0.00)
 FOV antes del corte: 60.00 grados
 ```
 
 ### Después del corte
 
 ```text
-[Frame 000] CAM_PRINCIPAL |
-POS(1.00, 1.80, -1.50) |
-FOCO(0.00, 1.70, 0.00)
-
+[Frame 000] CAM_PRINCIPAL | POS(1.00, 1.80, -1.50) | FOCO(0.00, 1.70, 0.00)
 FOV después del corte: 35.00 grados
 ```
 
@@ -584,6 +604,18 @@ Durante la ejecución paso a paso se comprobó que los campos de `cam.pos` y `ca
 Al regresar al método principal, los nuevos valores permanecieron almacenados en la cámara original.
 
 Esto demuestra el funcionamiento del modificador `ref` aplicado a un tipo por valor.
+
+### Herramientas utilizadas
+
+- Breakpoints.
+- Variables locales.
+- Panel Watch.
+- Call Stack.
+- `F10` para avanzar instrucción por instrucción.
+- `F5` para continuar la ejecución.
+- `Shift + F5` para detener la sesión.
+
+El mensaje de salida con código `-1` observado al detener una sesión correspondió al cierre manual del proceso de depuración, no a un error del código fuente.
 
 ---
 
@@ -663,6 +695,40 @@ dotnet .\Practica6\CamaraCinematica\bin\Debug\net8.0\CamaraCinematica.dll
 
 ---
 
+## Pruebas realizadas
+
+| Prueba | Resultado |
+|---|---|
+| Compilación en `net8.0` | Correcta |
+| Definición de tres `structs` | Correcta |
+| Inicialización completa | Correcta |
+| Posición objetivo | Correcta |
+| Foco objetivo | Correcto |
+| Método con `ref` | Comprobado |
+| Interpolación de posición X | Correcta |
+| Interpolación de posición Y | Correcta |
+| Interpolación de posición Z | Correcta |
+| Interpolación de foco X | Correcta |
+| Interpolación de foco Y | Correcta |
+| Interpolación de foco Z | Correcta |
+| Simulación de 20 frames | Correcta |
+| Formato `D3` y `F2` | Correcto |
+| Convergencia progresiva | Comprobada |
+| Segundo rig `CAM_CLOSEUP` | Correcto |
+| Función `CortarA` | Correcta |
+| Copia de posición | Comprobada |
+| Copia de foco | Comprobada |
+| Copia de FOV | Comprobada |
+| Depuración antes de la interpolación | Completada |
+| Depuración después de la interpolación | Completada |
+| Solución de AppHost | Aplicada |
+| Publicación de rama feature | Completada |
+| Merge `--no-ff` en `main` | Completado |
+| Publicación final de `main` | Completada |
+| Estado final de Git | Limpio y sincronizado |
+
+---
+
 ## Rúbrica cubierta
 
 | Criterio | Implementación | Estado |
@@ -673,7 +739,7 @@ dotnet .\Practica6\CamaraCinematica\bin\Debug\net8.0\CamaraCinematica.dll
 | Método con `ref` | `ActualizarCamara(ref CamaraCinematica cam, ...)` | Cumplido |
 | Interpolación en seis ejes | Tres ejes de posición y tres del foco | Cumplido |
 | Simulación mínima de 20 frames | Bucle de frames 1 a 20 | Cumplido |
-| Formato de salida | `D3` para frames y `F2` para coordenadas | Cumplido |
+| Formato de salida | `D3` y `F2` | Cumplido |
 | Convergencia progresiva | Valores aproximándose al objetivo | Cumplido |
 | Segundo rig | `CAM_CLOSEUP` | Cumplido |
 | Función de corte | `CortarA` | Cumplido |
@@ -690,166 +756,256 @@ La práctica fue desarrollada en la rama:
 feature/camara-cinematica
 ```
 
-### Commits principales
+### Commits conservados en el historial
 
 ```text
-chore: crear estructura inicial de la practica 6
-
-feat: definir structs anidados e inicializar camara principal
-
-feat: implementar interpolacion con ref y simulacion de 20 frames
-
-feat: agregar segundo rig y corte cinematografico
-
-docs: agregar evidencias de depuracion del paso por referencia
+1c6e7cf chore: crear estructura inicial de la practica 6
+c0c31bb feat: definir structs anidados e inicializar camara principal
+f50d138 docs: corregir nombre y registrar evidencia de estructuras
+97036bf feat: implementar interpolacion con ref y simulacion de 20 frames
+af9214f feat: agregar segundo rig y corte cinematografico
+54fd197 docs: agregar evidencias de depuracion del paso por referencia
+26f70dd docs: completar documentacion de la practica 6
+ab0fe8e docs: actualizar README principal con la practica 6
+021c3c1 docs: agregar evidencia de publicacion de la rama feature
+65affca Merge PR: Práctica 6 completada
 ```
 
-Los cambios fueron registrados mediante commits separados para conservar una evolución clara del proyecto.
+### Publicación de la rama feature
+
+```powershell
+git push -u origin feature/camara-cinematica
+```
+
+La rama local quedó vinculada con:
+
+```text
+origin/feature/camara-cinematica
+```
+
+### Integración en `main`
+
+```powershell
+git switch main
+git pull --ff-only origin main
+git merge --no-ff feature/camara-cinematica -m "Merge PR: Práctica 6 completada"
+```
+
+El commit de integración fue:
+
+```text
+65affca Merge PR: Práctica 6 completada
+```
+
+### Publicación final
+
+```powershell
+git push origin main
+```
+
+Después de la publicación:
+
+```text
+main
+origin/main
+origin/HEAD
+```
+
+quedaron alineados con el commit de integración.
 
 ---
 
-## Evidencias oficiales
+# Evidencias oficiales
 
-Las imágenes se encuentran en:
+Las capturas se encuentran en:
 
 ```text
 Practica6/CamaraCinematica/capturas
 ```
 
-### Estado inicial y creación del proyecto
+Se conservaron **25 evidencias oficiales**. Los nombres se mantienen exactamente como fueron guardados durante el desarrollo, incluyendo las extensiones dobles existentes en dos archivos.
 
-```text
-01_estado_inicial_repositorio.png
-02_rama_y_scaffold_practica6.png
-02-2_rama_y_scaffold_practica6.png
-02-3_commit_inicial_practica6.png
-```
+## Índice completo de capturas
 
-### Modelado de estructuras
-
-```text
-03_structs_anidados_codigo.png
-03_structs_anidados_codigo.png.png
-03_structs_anidados_y_objetivos.png
-03-2_commit_structs_e_inicializacion.png
-```
-
-### Interpolación, `ref` e incidencia de AppHost
-
-```text
-04_funcion_ref_y_lerp.png
-04-0_bloqueo_apphost_windows.png
-04-1_bloqueo_apphost_windows.png
-04-1_funcion_ref_y_lerp.png
-04-2_bloqueo_apphost_windows.png
-04-2_funcion_ref_y_lerp.png
-04-3_bloqueo_apphost_windows.png
-```
-
-### Simulación y commit
-
-```text
-05_simulacion_20_frames_convergencia.png.png
-05-2_commit_interpolacion_y_frames.png
-```
-
-### Segundo rig y corte cinematográfico
-
-```text
-06_segundo_rig_cam_closeup.png
-06-2_funcion_cortarA_y_resultado.png
-06-3_commit_segundo_rig_y_corte.png
-```
-
-### Depuración del paso por referencia
-
-```text
-07_debug_ref_antes_interpolacion.png
-07-2_debug_ref_despues_interpolacion.png
-07-3_commit_debug_ref.png
-```
+| N.º | Archivo | Evidencia documentada |
+|---:|---|---|
+| 1 | `01_estado_inicial_repositorio.png` | Estado inicial de `main`, repositorio limpio, remoto y SDK. |
+| 2 | `02_rama_y_scaffold_practica6.png` | Creación de la rama y estructura inicial del proyecto. |
+| 3 | `02-2_rama_y_scaffold_practica6.png` | Verificación de archivos, `net8.0` y compilación inicial. |
+| 4 | `02-3_commit_inicial_practica6.png` | Commit de creación de la estructura inicial. |
+| 5 | `03_structs_anidados_codigo.png` | Definición principal de los `structs` anidados. |
+| 6 | `03_structs_anidados_codigo.png.png` | Evidencia complementaria del modelado de estructuras. |
+| 7 | `03_structs_anidados_y_objetivos.png` | Inicialización de cámara, posición y foco objetivo. |
+| 8 | `03-2_commit_structs_e_inicializacion.png` | Commit del modelado y la inicialización. |
+| 9 | `04_funcion_ref_y_lerp.png` | Firma con `ref` e interpolación manual. |
+| 10 | `04-0_bloqueo_apphost_windows.png` | Incidencia inicial de bloqueo del AppHost. |
+| 11 | `04-1_bloqueo_apphost_windows.png` | Diagnóstico y comprobación de ejecución alternativa. |
+| 12 | `04-1_funcion_ref_y_lerp.png` | Vista complementaria de `ref` e interpolación. |
+| 13 | `04-2_bloqueo_apphost_windows.png` | Continuación de la solución aplicada al bloqueo. |
+| 14 | `04-2_funcion_ref_y_lerp.png` | Segunda vista complementaria del método principal. |
+| 15 | `04-3_bloqueo_apphost_windows.png` | Evidencia adicional de la incidencia y su resolución. |
+| 16 | `05_simulacion_20_frames_convergencia.png.png` | Ejecución completa de los frames 001 a 020. |
+| 17 | `06_segundo_rig_cam_closeup.png` | Configuración completa de `CAM_CLOSEUP`. |
+| 18 | `06-2_funcion_cortarA_y_resultado.png` | Método `CortarA` y comparación antes/después. |
+| 19 | `07_debug_ref_antes_interpolacion.png` | Valores iniciales observados antes de interpolar. |
+| 20 | `07-2_debug_ref_despues_interpolacion.png` | Valores modificados dentro de `ActualizarCamara`. |
+| 21 | `07-3_commit_debug_ref.png` | Commit de las evidencias de depuración. |
+| 22 | `07-4_commit_readme_principal.png` | Commit de actualización del README principal. |
+| 23 | `08_rama_feature_publicada.png` | Publicación y sincronización de la rama feature. |
+| 24 | `09_merge_practica6_en_main.png` | Integración mediante `merge --no-ff` en `main`. |
+| 25 | `10_main_publicada_en_github.png` | Publicación final de `main` y sincronización remota. |
 
 ---
 
-## Galería de evidencias
+# Galería completa de evidencias
 
-### Estado inicial del repositorio
+## 01 — Estado inicial del repositorio
 
-![Estado inicial](capturas/01_estado_inicial_repositorio.png)
+![Estado inicial del repositorio](capturas/01_estado_inicial_repositorio.png)
 
-### Rama y estructura de la práctica
+---
 
-![Rama y scaffold](capturas/02_rama_y_scaffold_practica6.png)
+## 02 — Rama y scaffold de la Práctica 6
 
-![Estructura y compilación](capturas/02-2_rama_y_scaffold_practica6.png)
+![Rama y scaffold de la Práctica 6](capturas/02_rama_y_scaffold_practica6.png)
 
-### Commit inicial
+---
 
-![Commit inicial](capturas/02-3_commit_inicial_practica6.png)
+## 02-2 — Verificación de la estructura y compilación
 
-### Estructuras anidadas
+![Verificación de estructura y compilación](capturas/02-2_rama_y_scaffold_practica6.png)
 
-![Structs anidados](capturas/03_structs_anidados_codigo.png)
+---
 
-![Structs anidados complementaria](capturas/03_structs_anidados_codigo.png.png)
+## 02-3 — Commit inicial
 
-### Inicialización y objetivos
+![Commit inicial de la Práctica 6](capturas/02-3_commit_inicial_practica6.png)
+
+---
+
+## 03 — Structs anidados
+
+![Código de structs anidados](capturas/03_structs_anidados_codigo.png)
+
+---
+
+## 03 — Evidencia complementaria de structs
+
+![Evidencia complementaria de structs](capturas/03_structs_anidados_codigo.png.png)
+
+---
+
+## 03 — Inicialización y objetivos
 
 ![Inicialización y objetivos](capturas/03_structs_anidados_y_objetivos.png)
 
-### Commit de estructuras
+---
 
-![Commit de estructuras](capturas/03-2_commit_structs_e_inicializacion.png)
+## 03-2 — Commit de estructuras e inicialización
 
-### Método con `ref` e interpolación
+![Commit de estructuras e inicialización](capturas/03-2_commit_structs_e_inicializacion.png)
+
+---
+
+## 04 — Función con `ref` e interpolación
 
 ![Función ref y lerp](capturas/04_funcion_ref_y_lerp.png)
 
-![Función ref y lerp complementaria](capturas/04-1_funcion_ref_y_lerp.png)
+---
 
-![Función ref y lerp complementaria 2](capturas/04-2_funcion_ref_y_lerp.png)
+## 04-0 — Bloqueo inicial de AppHost
 
-### Incidencia de AppHost
+![Bloqueo inicial de AppHost](capturas/04-0_bloqueo_apphost_windows.png)
 
-![Bloqueo AppHost](capturas/04-0_bloqueo_apphost_windows.png)
+---
 
-![Bloqueo AppHost 1](capturas/04-1_bloqueo_apphost_windows.png)
+## 04-1 — Diagnóstico de AppHost
 
-![Bloqueo AppHost 2](capturas/04-2_bloqueo_apphost_windows.png)
+![Diagnóstico de AppHost](capturas/04-1_bloqueo_apphost_windows.png)
 
-![Bloqueo AppHost 3](capturas/04-3_bloqueo_apphost_windows.png)
+---
 
-### Simulación de 20 frames
+## 04-1 — Vista complementaria de `ref` y `lerp`
 
-![Simulación de 20 frames](capturas/05_simulacion_20_frames_convergencia.png.png)
+![Vista complementaria de ref y lerp](capturas/04-1_funcion_ref_y_lerp.png)
 
-### Commit de interpolación
+---
 
-![Commit de interpolación](capturas/05-2_commit_interpolacion_y_frames.png)
+## 04-2 — Continuación de la solución de AppHost
 
-### Segundo rig
+![Continuación de la solución de AppHost](capturas/04-2_bloqueo_apphost_windows.png)
+
+---
+
+## 04-2 — Segunda vista complementaria de `ref` y `lerp`
+
+![Segunda vista complementaria de ref y lerp](capturas/04-2_funcion_ref_y_lerp.png)
+
+---
+
+## 04-3 — Evidencia adicional de AppHost
+
+![Evidencia adicional de AppHost](capturas/04-3_bloqueo_apphost_windows.png)
+
+---
+
+## 05 — Simulación de 20 frames
+
+![Simulación de 20 frames y convergencia](capturas/05_simulacion_20_frames_convergencia.png.png)
+
+---
+
+## 06 — Segundo rig `CAM_CLOSEUP`
 
 ![Segundo rig CAM_CLOSEUP](capturas/06_segundo_rig_cam_closeup.png)
 
-### Función de corte
+---
 
-![Función CortarA](capturas/06-2_funcion_cortarA_y_resultado.png)
+## 06-2 — Función `CortarA` y resultado
 
-### Commit del segundo rig
+![Función CortarA y resultado](capturas/06-2_funcion_cortarA_y_resultado.png)
 
-![Commit segundo rig](capturas/06-3_commit_segundo_rig_y_corte.png)
+---
 
-### Depuración antes de la interpolación
+## 07 — Depuración antes de la interpolación
 
-![Debug antes](capturas/07_debug_ref_antes_interpolacion.png)
+![Depuración antes de la interpolación](capturas/07_debug_ref_antes_interpolacion.png)
 
-### Depuración después de la interpolación
+---
 
-![Debug después](capturas/07-2_debug_ref_despues_interpolacion.png)
+## 07-2 — Depuración después de la interpolación
 
-### Commit de depuración
+![Depuración después de la interpolación](capturas/07-2_debug_ref_despues_interpolacion.png)
 
-![Commit debug ref](capturas/07-3_commit_debug_ref.png)
+---
+
+## 07-3 — Commit de depuración
+
+![Commit de evidencias de depuración](capturas/07-3_commit_debug_ref.png)
+
+---
+
+## 07-4 — Commit del README principal
+
+![Commit del README principal](capturas/07-4_commit_readme_principal.png)
+
+---
+
+## 08 — Rama feature publicada
+
+![Rama feature publicada](capturas/08_rama_feature_publicada.png)
+
+---
+
+## 09 — Integración de la Práctica 6 en `main`
+
+![Merge de la Práctica 6 en main](capturas/09_merge_practica6_en_main.png)
+
+---
+
+## 10 — Publicación final de `main`
+
+![Main publicada en GitHub](capturas/10_main_publicada_en_github.png)
 
 ---
 
@@ -901,6 +1057,22 @@ CAM_CLOSEUP   = 0.15
 
 **Solución:** utilizar breakpoints y expandir `cam.pos` y `cam.foco` en el panel de variables.
 
+### 6. Capturas sobrescritas con el mismo nombre
+
+Git detecta cambios por el contenido binario del archivo, incluso cuando el nombre y la ruta permanecen iguales.
+
+Por esta razón, una captura sobrescrita debe agregarse nuevamente:
+
+```powershell
+git add .\Practica6\CamaraCinematica\capturas\nombre_de_la_captura.png
+```
+
+Cuando corresponde integrarla al commit más reciente:
+
+```powershell
+git commit --amend --no-edit
+```
+
 ---
 
 ## Aprendizajes obtenidos
@@ -915,7 +1087,40 @@ La interpolación lineal muestra cómo un valor puede aproximarse progresivament
 
 El segundo rig y la función `CortarA` demostraron la diferencia entre una transición progresiva y un cambio instantáneo de estado.
 
-Finalmente, la depuración paso a paso permitió observar directamente los valores antes y después de cada modificación, reforzando la relación entre el código, la memoria y el resultado mostrado en consola.
+La depuración paso a paso permitió observar directamente los valores antes y después de cada modificación, reforzando la relación entre el código, la memoria y el resultado mostrado en consola.
+
+El flujo de Git permitió conservar una evolución trazable mediante commits atómicos, publicación de la rama feature, integración explícita y publicación final de `main`.
+
+---
+
+## Estado final de la Práctica 6
+
+- Proyecto creado dentro del repositorio único `EstructuradeDatos_2026`.
+- Proyecto dirigido a .NET 8.
+- Archivo fuente único conforme a la entrega.
+- Tres estructuras personalizadas implementadas.
+- Composición mediante `structs` anidados.
+- Campos públicos e inicialización completa.
+- Cámara principal configurada.
+- Posición y foco objetivo definidos.
+- Método `ActualizarCamara` implementado con `ref`.
+- Interpolación aplicada en seis componentes.
+- Simulación completa de 20 frames.
+- Convergencia progresiva comprobada.
+- Segundo rig `CAM_CLOSEUP` implementado.
+- Función `CortarA` implementada.
+- Cambio de posición, foco y FOV comprobado.
+- Depuración del paso por referencia completada.
+- Incidencia de AppHost diagnosticada y resuelta.
+- Compilación realizada sin errores.
+- README individual terminado.
+- README principal actualizado.
+- Veinticinco evidencias oficiales organizadas.
+- Rama `feature/camara-cinematica` publicada y sincronizada.
+- Integración completada en `main` mediante `merge --no-ff`.
+- Commit `Merge PR: Práctica 6 completada` conservado.
+- Rama `main` publicada y sincronizada con `origin/main`.
+- Repositorio final sin cambios pendientes antes del último cierre documental.
 
 ---
 
@@ -927,7 +1132,9 @@ El programa utiliza tres estructuras personalizadas, interpolación manual en se
 
 La ejecución demostró la convergencia progresiva de la posición y el foco. La depuración confirmó que los cambios permanecen en la variable original gracias al paso por referencia.
 
-La práctica también fue integrada al flujo de control de versiones del repositorio académico mediante una rama independiente, commits semánticos y evidencias verificables.
+La práctica también fue integrada al flujo de control de versiones del repositorio académico mediante una rama independiente, commits semánticos, publicación remota, merge `--no-ff` y evidencias verificables.
+
+Con esta entrega se completa el bloque de seis prácticas de la materia antes del desarrollo por fases del proyecto final FastCart.
 
 ---
 
@@ -943,8 +1150,11 @@ Durante el desarrollo se utilizó ChatGPT como herramienta de apoyo didáctico p
 - Identificar y resolver errores de compilación y ejecución.
 - Estructurar la documentación técnica.
 - Verificar el cumplimiento de los requisitos de la práctica.
+- Mantener un flujo de Git claro y reproducible.
 
 La herramienta de inteligencia artificial fue utilizada como acompañamiento para el aprendizaje y no como sustitución de la ejecución, comprobación y comprensión del trabajo.
+
+Todas las capturas corresponden al entorno real de Visual Studio Code del estudiante.
 
 ---
 
@@ -953,6 +1163,10 @@ La herramienta de inteligencia artificial fue utilizada como acompañamiento par
 Desarrollo académico realizado por:
 
 **José Paulo Santana Ramírez**
+
+Matrícula:
+
+**14868430**
 
 Materia:
 
