@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using System.Threading;
 
 // ==========================================================
 // PRÁCTICA 6
@@ -44,6 +46,8 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
+
         // ----------------------------------------------------------
         // Inicialización del rig principal
         // ----------------------------------------------------------
@@ -79,7 +83,7 @@ internal class Program
         focoObjetivo.z = 0f;
 
         // ----------------------------------------------------------
-        // Verificación inicial en consola
+        // Presentación del estado inicial
         // ----------------------------------------------------------
         Console.WriteLine("======================================================");
         Console.WriteLine("  PRÁCTICA 6 - SISTEMA DE CÁMARA CINEMATOGRÁFICA");
@@ -113,7 +117,86 @@ internal class Program
             $"{focoObjetivo.y:F2}, " +
             $"{focoObjetivo.z:F2})");
 
+        // ----------------------------------------------------------
+        // Bucle de simulación cinematográfica
+        // ----------------------------------------------------------
         Console.WriteLine();
-        Console.WriteLine("Estructuras anidadas inicializadas correctamente.");
+        Console.WriteLine("=== SIMULACIÓN DE 20 FRAMES ===");
+        Console.WriteLine();
+
+        for (int frame = 1; frame <= 20; frame++)
+        {
+            ActualizarCamara(
+                ref camara,
+                posicionObjetivo,
+                focoObjetivo);
+
+            ImprimirEstado(camara, frame);
+
+            // Pausa visual para representar el avance cuadro a cuadro.
+            Thread.Sleep(80);
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("¡Simulación completada!");
+        Console.WriteLine();
+
+        Console.WriteLine("Estado final aproximado:");
+
+        Console.WriteLine(
+            $"POS({camara.pos.x:F2}, " +
+            $"{camara.pos.y:F2}, " +
+            $"{camara.pos.z:F2})");
+
+        Console.WriteLine(
+            $"FOCO({camara.foco.x:F2}, " +
+            $"{camara.foco.y:F2}, " +
+            $"{camara.foco.z:F2})");
+    }
+
+    /// <summary>
+    /// Modifica directamente el rig original y lo desplaza suavemente
+    /// hacia la posición y el foco objetivo.
+    /// </summary>
+    private static void ActualizarCamara(
+        ref CamaraCinematica cam,
+        Posicion posicionObjetivo,
+        Foco focoObjetivo)
+    {
+        // Factor alpha de interpolación.
+        float alpha = cam.velocidad;
+
+        // Interpolación manual de la posición.
+        cam.pos.x +=
+            (posicionObjetivo.x - cam.pos.x) * alpha;
+
+        cam.pos.y +=
+            (posicionObjetivo.y - cam.pos.y) * alpha;
+
+        cam.pos.z +=
+            (posicionObjetivo.z - cam.pos.z) * alpha;
+
+        // Interpolación manual del foco.
+        cam.foco.x +=
+            (focoObjetivo.x - cam.foco.x) * alpha;
+
+        cam.foco.y +=
+            (focoObjetivo.y - cam.foco.y) * alpha;
+
+        cam.foco.z +=
+            (focoObjetivo.z - cam.foco.z) * alpha;
+    }
+
+    /// <summary>
+    /// Imprime el estado actual del rig en un frame específico.
+    /// </summary>
+    private static void ImprimirEstado(
+        CamaraCinematica cam,
+        int frame)
+    {
+        Console.WriteLine(
+            $"[Frame {frame:D3}] {cam.nombre} | " +
+            $"POS({cam.pos.x:F2}, {cam.pos.y:F2}, {cam.pos.z:F2}) | " +
+            $"FOCO({cam.foco.x:F2}, {cam.foco.y:F2}, {cam.foco.z:F2})");
     }
 }
