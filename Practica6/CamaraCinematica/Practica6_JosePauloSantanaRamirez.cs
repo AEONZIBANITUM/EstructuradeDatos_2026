@@ -21,7 +21,7 @@ public struct Posicion
 }
 
 /// <summary>
-/// Representa el punto tridimensional hacia el que apunta la cámara.
+/// Representa el punto tridimensional hacia el cual apunta la cámara.
 /// </summary>
 public struct Foco
 {
@@ -46,62 +46,85 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        _ = args;
+
         Console.OutputEncoding = Encoding.UTF8;
 
         // ----------------------------------------------------------
         // Inicialización del rig principal
         // ----------------------------------------------------------
-        CamaraCinematica camara;
+        CamaraCinematica camara = new CamaraCinematica
+        {
+            nombre = "CAM_PRINCIPAL",
 
-        camara.nombre = "CAM_PRINCIPAL";
-        camara.fov = 60f;
-        camara.velocidad = 0.08f;
+            pos = new Posicion
+            {
+                x = 10f,
+                y = 5f,
+                z = -8f
+            },
 
-        // Posición inicial: elevada y desplazada hacia la derecha.
-        camara.pos.x = 10f;
-        camara.pos.y = 5f;
-        camara.pos.z = -8f;
+            foco = new Foco
+            {
+                x = 0f,
+                y = 0f,
+                z = 0f
+            },
 
-        // Foco inicial: origen de la escena.
-        camara.foco.x = 0f;
-        camara.foco.y = 0f;
-        camara.foco.z = 0f;
+            fov = 60f,
+            velocidad = 0.08f
+        };
 
         // ----------------------------------------------------------
         // Objetivos cinematográficos
         // ----------------------------------------------------------
-        Posicion posicionObjetivo;
+        Posicion posicionObjetivo = new Posicion
+        {
+            x = 0f,
+            y = 2f,
+            z = -5f
+        };
 
-        posicionObjetivo.x = 0f;
-        posicionObjetivo.y = 2f;
-        posicionObjetivo.z = -5f;
-
-        Foco focoObjetivo;
-
-        focoObjetivo.x = 0f;
-        focoObjetivo.y = 1f;
-        focoObjetivo.z = 0f;
+        Foco focoObjetivo = new Foco
+        {
+            x = 0f,
+            y = 1f,
+            z = 0f
+        };
 
         // ----------------------------------------------------------
         // Presentación del estado inicial
         // ----------------------------------------------------------
-        Console.WriteLine("======================================================");
-        Console.WriteLine("  PRÁCTICA 6 - SISTEMA DE CÁMARA CINEMATOGRÁFICA");
-        Console.WriteLine("======================================================");
+        Console.WriteLine(
+            "======================================================");
+
+        Console.WriteLine(
+            "  PRÁCTICA 6 - SISTEMA DE CÁMARA CINEMATOGRÁFICA");
+
+        Console.WriteLine(
+            "======================================================");
+
         Console.WriteLine();
 
         Console.WriteLine($"Rig creado: {camara.nombre}");
         Console.WriteLine($"FOV: {camara.fov:F2} grados");
-        Console.WriteLine($"Velocidad de interpolación: {camara.velocidad:P0}");
+
+        Console.WriteLine(
+            $"Velocidad de interpolación: {camara.velocidad:P0}");
+
         Console.WriteLine();
 
         Console.WriteLine(
             $"Posición inicial: " +
-            $"({camara.pos.x:F2}, {camara.pos.y:F2}, {camara.pos.z:F2})");
+            $"({camara.pos.x:F2}, " +
+            $"{camara.pos.y:F2}, " +
+            $"{camara.pos.z:F2})");
 
         Console.WriteLine(
             $"Foco inicial: " +
-            $"({camara.foco.x:F2}, {camara.foco.y:F2}, {camara.foco.z:F2})");
+            $"({camara.foco.x:F2}, " +
+            $"{camara.foco.y:F2}, " +
+            $"{camara.foco.z:F2})");
 
         Console.WriteLine();
 
@@ -152,11 +175,104 @@ internal class Program
             $"FOCO({camara.foco.x:F2}, " +
             $"{camara.foco.y:F2}, " +
             $"{camara.foco.z:F2})");
+
+        // ----------------------------------------------------------
+        // Extensión: segundo rig cinematográfico
+        // ----------------------------------------------------------
+        CamaraCinematica camaraCloseUp = new CamaraCinematica
+        {
+            nombre = "CAM_CLOSEUP",
+
+            pos = new Posicion
+            {
+                x = 1f,
+                y = 1.8f,
+                z = -1.5f
+            },
+
+            foco = new Foco
+            {
+                x = 0f,
+                y = 1.7f,
+                z = 0f
+            },
+
+            fov = 35f,
+            velocidad = 0.15f
+        };
+
+        Console.WriteLine();
+        Console.WriteLine(
+            "======================================================");
+
+        Console.WriteLine(
+            "  EXTENSIÓN: SEGUNDO RIG Y CORTE INSTANTÁNEO");
+
+        Console.WriteLine(
+            "======================================================");
+
+        Console.WriteLine();
+
+        Console.WriteLine(
+            $"Rig fuente preparado: {camaraCloseUp.nombre}");
+
+        Console.WriteLine(
+            $"Velocidad del segundo rig: " +
+            $"{camaraCloseUp.velocidad:P0}");
+
+        Console.WriteLine(
+            $"POS({camaraCloseUp.pos.x:F2}, " +
+            $"{camaraCloseUp.pos.y:F2}, " +
+            $"{camaraCloseUp.pos.z:F2})");
+
+        Console.WriteLine(
+            $"FOCO({camaraCloseUp.foco.x:F2}, " +
+            $"{camaraCloseUp.foco.y:F2}, " +
+            $"{camaraCloseUp.foco.z:F2})");
+
+        Console.WriteLine(
+            $"FOV del rig fuente: " +
+            $"{camaraCloseUp.fov:F2} grados");
+
+        // ----------------------------------------------------------
+        // Estado de la cámara antes del corte
+        // ----------------------------------------------------------
+        Console.WriteLine();
+        Console.WriteLine(
+            "Estado de CAM_PRINCIPAL antes del corte:");
+
+        ImprimirEstado(camara, 0);
+
+        Console.WriteLine(
+            $"FOV antes del corte: {camara.fov:F2} grados");
+
+        // ----------------------------------------------------------
+        // Corte cinematográfico instantáneo
+        // ----------------------------------------------------------
+        CortarA(
+            ref camara,
+            camaraCloseUp);
+
+        // ----------------------------------------------------------
+        // Estado de la cámara después del corte
+        // ----------------------------------------------------------
+        Console.WriteLine();
+        Console.WriteLine(
+            "Estado de CAM_PRINCIPAL después del corte:");
+
+        ImprimirEstado(camara, 0);
+
+        Console.WriteLine(
+            $"FOV después del corte: {camara.fov:F2} grados");
+
+        Console.WriteLine();
+        Console.WriteLine(
+            "Extensión cinematográfica completada.");
     }
 
     /// <summary>
-    /// Modifica directamente el rig original y lo desplaza suavemente
-    /// hacia la posición y el foco objetivo.
+    /// Modifica directamente el rig original y lo desplaza
+    /// progresivamente hacia la posición y el foco objetivo.
     /// </summary>
     private static void ActualizarCamara(
         ref CamaraCinematica cam,
@@ -196,7 +312,29 @@ internal class Program
     {
         Console.WriteLine(
             $"[Frame {frame:D3}] {cam.nombre} | " +
-            $"POS({cam.pos.x:F2}, {cam.pos.y:F2}, {cam.pos.z:F2}) | " +
-            $"FOCO({cam.foco.x:F2}, {cam.foco.y:F2}, {cam.foco.z:F2})");
+            $"POS({cam.pos.x:F2}, " +
+            $"{cam.pos.y:F2}, " +
+            $"{cam.pos.z:F2}) | " +
+            $"FOCO({cam.foco.x:F2}, " +
+            $"{cam.foco.y:F2}, " +
+            $"{cam.foco.z:F2})");
+    }
+
+    /// <summary>
+    /// Realiza un corte instantáneo copiando la posición,
+    /// el foco y el campo de visión del rig fuente al destino.
+    /// </summary>
+    private static void CortarA(
+        ref CamaraCinematica destino,
+        CamaraCinematica fuente)
+    {
+        destino.pos = fuente.pos;
+        destino.foco = fuente.foco;
+        destino.fov = fuente.fov;
+
+        Console.WriteLine();
+        Console.WriteLine(
+            $"Corte instantáneo aplicado: " +
+            $"{fuente.nombre} -> {destino.nombre}");
     }
 }
