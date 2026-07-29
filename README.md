@@ -22,6 +22,7 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 | `Practica3/SimuladorHeap` | Completado | Simulador de arreglos dinámicos para analizar Stack, Heap, mutación de objetos y reasignación local de referencias. |
 | `Practica4/Semana4Recursividad` | Completado | Implementación segura de factorial y Fibonacci en versiones iterativas y recursivas, con medición mediante `Stopwatch` y análisis del Call Stack. |
 | `Practica5/SistemaInventario` | Completado | Sistema de gestión de inventario con `struct`, arreglo estático, validaciones, búsqueda por ID, actualización de stock, persistencia CSV y depuración paso a paso. |
+| `Practica6/CamaraCinematica` | Completado | Simulación de cámara virtual con `structs` anidados, interpolación lineal en seis ejes, modificación mediante `ref`, 20 frames, segundo rig cinematográfico y corte instantáneo. |
 
 ---
 
@@ -35,6 +36,8 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 - Git
 - GitHub
 - Archivos CSV
+- Depurador integrado de .NET
+- Interpolación lineal aplicada a simulaciones por frames
 
 ---
 
@@ -110,6 +113,12 @@ EstructuradeDatos_2026/
 │       ├── inventario.csv
 │       ├── README.md
 │       └── SistemaInventario.csproj
+├── Practica6/
+│   └── CamaraCinematica/
+│       ├── capturas/
+│       ├── CamaraCinematica.csproj
+│       ├── Practica6_JosePauloSantanaRamirez.cs
+│       └── README.md
 ├── .gitignore
 └── README.md
 ```
@@ -1574,6 +1583,483 @@ En total se conservaron:
 
 ---
 
+
+# Práctica 6 — Composición de Cámaras Virtuales mediante Structs Anidados
+
+## Proyecto
+
+```text
+Practica6/CamaraCinematica
+```
+
+La documentación técnica completa está disponible en:
+
+[README individual de la Práctica 6](Practica6/CamaraCinematica/README.md)
+
+## Objetivo
+
+Desarrollar una aplicación de consola que simule el movimiento de una cámara cinematográfica virtual mediante:
+
+- Estructuras personalizadas anidadas.
+- Paso de una estructura por referencia.
+- Interpolación lineal progresiva.
+- Actualización de posición y foco en tres dimensiones.
+- Simulación de 20 frames.
+- Presentación formateada de resultados.
+- Depuración de valores antes y después de la interpolación.
+- Implementación de un segundo rig cinematográfico.
+- Corte instantáneo entre configuraciones de cámara.
+
+La práctica permite comprobar de manera visual y numérica cómo un `struct` puede contener otros `structs` y cómo el modificador `ref` evita trabajar con una copia independiente.
+
+## Estructura principal
+
+```text
+Practica6/CamaraCinematica/
+├── capturas/
+├── CamaraCinematica.csproj
+├── Practica6_JosePauloSantanaRamirez.cs
+└── README.md
+```
+
+El proyecto utiliza un único archivo fuente de C#:
+
+```text
+Practica6_JosePauloSantanaRamirez.cs
+```
+
+Dentro de ese archivo se encuentran:
+
+```text
+Posicion
+Foco
+CamaraCinematica
+Program
+├── Main
+├── ActualizarCamara
+├── ImprimirEstado
+└── CortarA
+```
+
+## Modelo de datos
+
+La práctica utiliza tres estructuras personalizadas.
+
+### `Posicion`
+
+```csharp
+public struct Posicion
+{
+    public float x;
+    public float y;
+    public float z;
+}
+```
+
+Representa la ubicación tridimensional del rig.
+
+### `Foco`
+
+```csharp
+public struct Foco
+{
+    public float x;
+    public float y;
+    public float z;
+}
+```
+
+Representa el punto tridimensional hacia el cual apunta la cámara.
+
+### `CamaraCinematica`
+
+```csharp
+public struct CamaraCinematica
+{
+    public string nombre;
+    public Posicion pos;
+    public Foco foco;
+    public float fov;
+    public float velocidad;
+}
+```
+
+La composición resultante es:
+
+```text
+CamaraCinematica
+├── nombre
+├── fov
+├── velocidad
+├── pos : Posicion
+│   ├── x
+│   ├── y
+│   └── z
+└── foco : Foco
+    ├── x
+    ├── y
+    └── z
+```
+
+Todos los campos fueron declarados como `public` e inicializados antes de ser utilizados.
+
+## Cámara principal
+
+El rig principal se denomina:
+
+```text
+CAM_PRINCIPAL
+```
+
+Su configuración inicial es:
+
+| Campo | Valor |
+|---|---:|
+| Posición | `(10, 5, -8)` |
+| Foco | `(0, 0, 0)` |
+| FOV | `60f` |
+| Velocidad | `0.08f` |
+
+Los objetivos cinematográficos son:
+
+| Objetivo | Valor |
+|---|---:|
+| Posición objetivo | `(0, 2, -5)` |
+| Foco objetivo | `(0, 1, 0)` |
+
+## Interpolación lineal
+
+El desplazamiento utiliza la fórmula:
+
+```text
+actual = actual + (objetivo - actual) × alpha
+```
+
+El factor `alpha` se obtiene de:
+
+```csharp
+float alpha = cam.velocidad;
+```
+
+Para `CAM_PRINCIPAL`, la velocidad es:
+
+```text
+0.08 = 8 %
+```
+
+Esto significa que en cada frame el rig avanza un 8 % de la distancia que todavía falta para llegar al objetivo.
+
+## Método `ActualizarCamara`
+
+La cámara se recibe mediante `ref`:
+
+```csharp
+private static void ActualizarCamara(
+    ref CamaraCinematica cam,
+    Posicion posicionObjetivo,
+    Foco focoObjetivo)
+```
+
+El modificador `ref` permite modificar la variable original declarada en `Main`.
+
+Sin `ref`, al tratarse de un `struct`, el método recibiría una copia independiente y los cambios no permanecerían después de finalizar la llamada.
+
+La interpolación se aplica sobre los seis componentes:
+
+```csharp
+cam.pos.x +=
+    (posicionObjetivo.x - cam.pos.x) * alpha;
+
+cam.pos.y +=
+    (posicionObjetivo.y - cam.pos.y) * alpha;
+
+cam.pos.z +=
+    (posicionObjetivo.z - cam.pos.z) * alpha;
+
+cam.foco.x +=
+    (focoObjetivo.x - cam.foco.x) * alpha;
+
+cam.foco.y +=
+    (focoObjetivo.y - cam.foco.y) * alpha;
+
+cam.foco.z +=
+    (focoObjetivo.z - cam.foco.z) * alpha;
+```
+
+## Simulación de 20 frames
+
+La actualización se repite mediante:
+
+```csharp
+for (int frame = 1; frame <= 20; frame++)
+{
+    ActualizarCamara(
+        ref camara,
+        posicionObjetivo,
+        focoObjetivo);
+
+    ImprimirEstado(camara, frame);
+
+    Thread.Sleep(80);
+}
+```
+
+Cada iteración realiza:
+
+1. Modificación de la cámara original mediante `ref`.
+2. Interpolación de posición y foco.
+3. Impresión del nuevo estado.
+4. Pausa de 80 milisegundos.
+5. Continuación con el siguiente frame.
+
+## Formato de salida
+
+El método `ImprimirEstado` utiliza:
+
+- `D3` para presentar el frame con tres dígitos.
+- `F2` para presentar las coordenadas con dos decimales.
+
+Ejemplo:
+
+```text
+[Frame 001] CAM_PRINCIPAL | POS(9.20, 4.76, -7.76) | FOCO(0.00, 0.08, 0.00)
+```
+
+El frame 20 produjo:
+
+```text
+[Frame 020] CAM_PRINCIPAL | POS(1.89, 2.57, -5.57) | FOCO(0.00, 0.81, 0.00)
+```
+
+Los valores avanzaron de forma continua hacia:
+
+```text
+Posición objetivo: (0.00, 2.00, -5.00)
+Foco objetivo:     (0.00, 1.00, 0.00)
+```
+
+## Segundo rig cinematográfico
+
+Como extensión se implementó:
+
+```text
+CAM_CLOSEUP
+```
+
+Su configuración es:
+
+| Campo | Valor |
+|---|---:|
+| Posición | `(1, 1.8, -1.5)` |
+| Foco | `(0, 1.7, 0)` |
+| FOV | `35f` |
+| Velocidad | `0.15f` |
+
+El segundo rig representa una cámara de plano cercano con una configuración más reactiva.
+
+## Función de corte instantáneo
+
+El método:
+
+```csharp
+private static void CortarA(
+    ref CamaraCinematica destino,
+    CamaraCinematica fuente)
+```
+
+copia desde el rig fuente hacia el rig destino:
+
+- Posición completa.
+- Foco completo.
+- Campo de visión.
+
+Implementación:
+
+```csharp
+destino.pos = fuente.pos;
+destino.foco = fuente.foco;
+destino.fov = fuente.fov;
+```
+
+La llamada utilizada es:
+
+```csharp
+CortarA(
+    ref camara,
+    camaraCloseUp);
+```
+
+Antes del corte, `CAM_PRINCIPAL` conservaba el estado obtenido después de los 20 frames.
+
+Después del corte, su estado cambió a:
+
+```text
+POS(1.00, 1.80, -1.50)
+FOCO(0.00, 1.70, 0.00)
+FOV 35.00 grados
+```
+
+El nombre `CAM_PRINCIPAL` se mantuvo, demostrando que se modificó el mismo rig de destino.
+
+## Depuración del paso por referencia
+
+La práctica fue depurada con:
+
+- Breakpoints.
+- Panel Variables.
+- Panel Watch.
+- Call Stack.
+- Ejecución paso a paso con `F10`.
+- Continuación con `F5`.
+- Detención con `Shift + F5`.
+
+Antes de la primera interpolación se observaron:
+
+```text
+cam.pos  = (10, 5, -8)
+cam.foco = (0, 0, 0)
+alpha    = 0.08
+```
+
+Durante la ejecución paso a paso se comprobó que los campos de `cam.pos` y `cam.foco` cambiaban directamente dentro de `ActualizarCamara`.
+
+Los valores permanecieron después de regresar a `Main`, confirmando el funcionamiento del modificador `ref` sobre un tipo por valor.
+
+## Incidencia de AppHost
+
+La compilación fue correcta, pero Windows bloqueó inicialmente el ejecutable nativo:
+
+```text
+CamaraCinematica.exe
+```
+
+La ejecución se comprobó mediante el ensamblado administrado:
+
+```powershell
+dotnet .\Practica6\CamaraCinematica\bin\Debug\net8.0\CamaraCinematica.dll
+```
+
+Como solución permanente se añadió al archivo `.csproj`:
+
+```xml
+<UseAppHost>false</UseAppHost>
+```
+
+La configuración final utiliza:
+
+```xml
+<TargetFramework>net8.0</TargetFramework>
+<UseAppHost>false</UseAppHost>
+```
+
+## Compilar la Práctica 6
+
+Desde la raíz del repositorio:
+
+```powershell
+dotnet build ".\Practica6\CamaraCinematica\CamaraCinematica.csproj"
+```
+
+## Ejecutar la Práctica 6
+
+```powershell
+dotnet run --project ".\Practica6\CamaraCinematica\CamaraCinematica.csproj"
+```
+
+También puede ejecutarse directamente el ensamblado:
+
+```powershell
+dotnet ".\Practica6\CamaraCinematica\bin\Debug\net8.0\CamaraCinematica.dll"
+```
+
+## Evidencias
+
+Las evidencias se encuentran en:
+
+```text
+Practica6/CamaraCinematica/capturas
+```
+
+Documentan:
+
+- Estado inicial del repositorio.
+- Creación de la rama y del proyecto.
+- Definición de los tres `structs`.
+- Inicialización de cámara y objetivos.
+- Uso de `ref`.
+- Interpolación en seis ejes.
+- Simulación completa de 20 frames.
+- Incidencia y solución de AppHost.
+- Segundo rig `CAM_CLOSEUP`.
+- Función `CortarA`.
+- Comparación antes y después del corte.
+- Depuración de valores anidados.
+- Commits de cierre de cada bloque.
+
+El índice completo está disponible en el
+[README individual de la Práctica 6](Practica6/CamaraCinematica/README.md).
+
+## Flujo de Git de la Práctica 6
+
+Rama de desarrollo:
+
+```text
+feature/camara-cinematica
+```
+
+Commits semánticos principales:
+
+```text
+chore: crear estructura inicial de la practica 6
+feat: definir structs anidados e inicializar camara principal
+feat: implementar interpolacion con ref y simulacion de 20 frames
+feat: agregar segundo rig y corte cinematografico
+docs: agregar evidencias de depuracion del paso por referencia
+docs: completar documentacion de la practica 6
+```
+
+## Rúbrica cubierta
+
+| Criterio | Implementación | Estado |
+|---|---|---|
+| Tres `structs` con campos públicos | `Posicion`, `Foco`, `CamaraCinematica` | Cumplido |
+| Composición de estructuras | `Posicion` y `Foco` dentro del rig | Cumplido |
+| Método con `ref` | `ActualizarCamara(ref CamaraCinematica cam, ...)` | Cumplido |
+| Interpolación en seis ejes | Posición y foco tridimensionales | Cumplido |
+| Simulación mínima de 20 frames | Frames `001` a `020` | Cumplido |
+| Formato de salida | `D3` y `F2` | Cumplido |
+| Convergencia progresiva | Valores aproximándose a los objetivos | Cumplido |
+| Segundo rig | `CAM_CLOSEUP` | Cumplido |
+| Función de corte | `CortarA` | Cumplido |
+| Depuración | Breakpoints, Variables y Call Stack | Cumplido |
+| Documentación | README individual y evidencias | Cumplido |
+
+## Estado de la Práctica 6
+
+- Proyecto creado con .NET 8.
+- Archivo fuente único conforme a la entrega.
+- Tres estructuras personalizadas implementadas.
+- Composición mediante `structs` anidados.
+- Campos públicos e inicialización completa.
+- Cámara principal configurada.
+- Posición y foco objetivo definidos.
+- Método `ActualizarCamara` implementado con `ref`.
+- Interpolación aplicada en seis componentes.
+- Simulación completa de 20 frames.
+- Convergencia progresiva comprobada.
+- Segundo rig `CAM_CLOSEUP` implementado.
+- Función `CortarA` implementada.
+- Cambio de posición, foco y FOV comprobado.
+- Depuración del paso por referencia completada.
+- Incidencia de AppHost diagnosticada y resuelta.
+- Compilación realizada sin errores.
+- README individual terminado.
+- Evidencias organizadas.
+- Commits semánticos conservados.
+- Rama de desarrollo limpia antes de la integración.
+
+---
+
 ## Propósito académico
 
 Este repositorio fue desarrollado con fines educativos para comprender, implementar y documentar conceptos de:
@@ -1585,6 +2071,12 @@ Este repositorio fue desarrollado con fines educativos para comprender, implemen
 - Flujo de control.
 - Parámetros `ref` y `out`.
 - Estructuras personalizadas mediante `struct`.
+- Composición mediante `structs` anidados.
+- Interpolación lineal de valores.
+- Simulación y actualización por frames.
+- Modificación directa de estructuras mediante `ref`.
+- Configuración de rigs cinematográficos virtuales.
+- Transiciones progresivas y cortes instantáneos.
 - Arreglos estáticos y control lógico de posiciones ocupadas.
 - Menús persistentes con `do-while` y `switch`.
 - Búsqueda lineal y actualización de registros.
