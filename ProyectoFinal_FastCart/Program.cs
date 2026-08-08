@@ -1,5 +1,6 @@
 ﻿using ProyectoFinal_FastCart.Models;
 using ProyectoFinal_FastCart.Structures;
+using ProyectoFinal_FastCart.Services;
 
 Console.WriteLine("==============================================================");
 Console.WriteLine("             FASTCART BACKEND CORE - FASE 2");
@@ -255,14 +256,24 @@ Console.WriteLine();
 Console.WriteLine("==============================================================");
 Console.WriteLine("        PRUEBA FUNCIONAL DE FASE 2 COMPLETADA");
 Console.WriteLine("==============================================================");
+
+
+//
+// ============================================================
+// AUDITORÍA DE CASOS BORDE - FASE 2
+// ============================================================
+//
+
 Console.WriteLine();
 Console.WriteLine("==============================================================");
 Console.WriteLine("          AUDITORÍA DE CASOS BORDE - FASE 2");
 Console.WriteLine("==============================================================");
 
+
 //
 // CASO 1: LISTA VACÍA
 //
+
 Console.WriteLine();
 Console.WriteLine("[1] LISTA VACÍA");
 Console.WriteLine("--------------------------------------------------------------");
@@ -281,9 +292,11 @@ Console.WriteLine(
         ? "Eliminar en lista vacía: CORRECTO."
         : "Eliminar en lista vacía: ERROR.");
 
+
 //
 // CASO 2: INSERTAR AL INICIO
 //
+
 Console.WriteLine();
 Console.WriteLine("[2] INSERCIÓN AL INICIO - O(1)");
 Console.WriteLine("--------------------------------------------------------------");
@@ -297,26 +310,33 @@ listaAuditoria.InsertarInicio(new Producto
     DatosProveedor = proveedor1
 });
 
-Console.WriteLine($"Productos después de InsertarInicio: {listaAuditoria.Contar()}");
+Console.WriteLine(
+    $"Productos después de InsertarInicio: {listaAuditoria.Contar()}");
+
 listaAuditoria.MostrarTodos();
+
 
 //
 // CASO 3: ELIMINAR CABEZA
 //
+
 Console.WriteLine();
 Console.WriteLine("[3] ELIMINACIÓN DE LA CABEZA");
 Console.WriteLine("--------------------------------------------------------------");
 
-bool cabezaEliminada = listaAuditoria.EliminarPorSKU(3001);
+bool cabezaEliminada =
+    listaAuditoria.EliminarPorSKU(3001);
 
 Console.WriteLine(
     cabezaEliminada && listaAuditoria.EstaVacia()
         ? "Resultado: CORRECTO - Cabeza eliminada y lista vacía."
         : "Resultado: ERROR al eliminar la cabeza.");
 
+
 //
 // PREPARAR LISTA PARA CASOS INTERMEDIO Y FINAL
 //
+
 listaAuditoria.InsertarOrdenado(new Producto
 {
     SKU = 3101,
@@ -348,43 +368,55 @@ Console.WriteLine();
 Console.WriteLine("Lista preparada:");
 listaAuditoria.MostrarTodos();
 
+
 //
 // CASO 4: ELIMINAR NODO INTERMEDIO
 //
+
 Console.WriteLine();
 Console.WriteLine("[4] ELIMINACIÓN DE NODO INTERMEDIO");
 Console.WriteLine("--------------------------------------------------------------");
 
-bool intermedioEliminado = listaAuditoria.EliminarPorSKU(3102);
+bool intermedioEliminado =
+    listaAuditoria.EliminarPorSKU(3102);
 
 Console.WriteLine(
     intermedioEliminado
         ? "Resultado: CORRECTO - Nodo intermedio eliminado."
         : "Resultado: ERROR al eliminar nodo intermedio.");
 
-Console.WriteLine($"Productos restantes: {listaAuditoria.Contar()}");
+Console.WriteLine(
+    $"Productos restantes: {listaAuditoria.Contar()}");
+
 listaAuditoria.MostrarTodos();
+
 
 //
 // CASO 5: ELIMINAR ÚLTIMO NODO
 //
+
 Console.WriteLine();
 Console.WriteLine("[5] ELIMINACIÓN DEL ÚLTIMO NODO");
 Console.WriteLine("--------------------------------------------------------------");
 
-bool ultimoEliminado = listaAuditoria.EliminarPorSKU(3103);
+bool ultimoEliminado =
+    listaAuditoria.EliminarPorSKU(3103);
 
 Console.WriteLine(
     ultimoEliminado
         ? "Resultado: CORRECTO - Último nodo eliminado."
         : "Resultado: ERROR al eliminar último nodo.");
 
-Console.WriteLine($"Productos restantes: {listaAuditoria.Contar()}");
+Console.WriteLine(
+    $"Productos restantes: {listaAuditoria.Contar()}");
+
 listaAuditoria.MostrarTodos();
+
 
 //
 // CASO 6: SKU INEXISTENTE
 //
+
 Console.WriteLine();
 Console.WriteLine("[6] BÚSQUEDA DE SKU INEXISTENTE");
 Console.WriteLine("--------------------------------------------------------------");
@@ -395,11 +427,303 @@ try
 }
 catch (KeyNotFoundException ex)
 {
-    Console.WriteLine($"Resultado: CORRECTO - Excepción controlada.");
+    Console.WriteLine(
+        "Resultado: CORRECTO - Excepción controlada.");
+
     Console.WriteLine(ex.Message);
 }
 
 Console.WriteLine();
 Console.WriteLine("==============================================================");
-Console.WriteLine("       AUDITORÍA ESTRUCTURAL COMPLETADA CORRECTAMENTE");
+Console.WriteLine(
+    "       AUDITORÍA ESTRUCTURAL COMPLETADA CORRECTAMENTE");
+Console.WriteLine("==============================================================");
+
+
+//
+// ============================================================
+// FASE 3
+// PRUEBA AISLADA DEL MOTOR BIDIRECCIONAL DE AUDITORÍA
+// ============================================================
+//
+
+Console.WriteLine();
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("             FASTCART BACKEND CORE - FASE 3");
+Console.WriteLine("==============================================================");
+Console.WriteLine("       Motor de Navegación Bidireccional");
+Console.WriteLine("       Historial de Auditoría de Inventario");
+Console.WriteLine("==============================================================");
+
+
+//
+// CREACIÓN DEL SERVICIO DE AUDITORÍA
+//
+
+AuditoriaService auditoriaPrueba =
+    new AuditoriaService();
+
+Console.WriteLine();
+Console.WriteLine("PRUEBA AISLADA DEL MOTOR DE AUDITORÍA");
+Console.WriteLine("--------------------------------------------------------------");
+
+Console.WriteLine();
+Console.WriteLine("REGISTRANDO EVENTOS DE AUDITORÍA...");
+Console.WriteLine("--------------------------------------------------------------");
+
+
+//
+// EVENTO 1 - INSERT
+//
+
+auditoriaPrueba.RegistrarEvento(
+    "INSERT",
+    4001,
+    "Producto 4001 agregado al catálogo.");
+
+
+//
+// EVENTO 2 - INSERT
+//
+
+auditoriaPrueba.RegistrarEvento(
+    "INSERT",
+    4002,
+    "Producto 4002 agregado al catálogo.");
+
+
+//
+// EVENTO 3 - UPDATE
+//
+
+auditoriaPrueba.RegistrarEvento(
+    "UPDATE",
+    4001,
+    "Producto 4001 actualizado.");
+
+
+//
+// EVENTO 4 - DELETE
+//
+
+auditoriaPrueba.RegistrarEvento(
+    "DELETE",
+    4002,
+    "Producto 4002 eliminado del catálogo.");
+
+
+//
+// TOTAL DE REGISTROS
+//
+
+Console.WriteLine(
+    $"Total de registros: {auditoriaPrueba.TotalRegistros}");
+
+
+//
+// VALIDACIÓN ESTRUCTURAL INICIAL
+//
+
+Console.WriteLine(
+    auditoriaPrueba.ValidarIntegridad()
+        ? "Integridad bidireccional: CORRECTA"
+        : "Integridad bidireccional: ERROR");
+
+
+//
+// RECORRIDO CRONOLÓGICO
+//
+
+Console.WriteLine();
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine("RECORRIDO CRONOLÓGICO");
+Console.WriteLine("--------------------------------------------------------------");
+
+auditoriaPrueba.ImprimirHistorial();
+
+
+//
+// RECORRIDO INVERSO
+//
+
+Console.WriteLine();
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine("RECORRIDO INVERSO");
+Console.WriteLine("--------------------------------------------------------------");
+
+auditoriaPrueba.ImprimirHistorialInverso();
+
+
+//
+// VALIDACIÓN FINAL
+//
+
+Console.WriteLine();
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine("VALIDACIÓN FINAL DE INTEGRIDAD");
+Console.WriteLine("--------------------------------------------------------------");
+
+Console.WriteLine(
+    auditoriaPrueba.ValidarIntegridad()
+        ? "Validación final: ESTRUCTURA ÍNTEGRA"
+        : "Validación final: ERROR ESTRUCTURAL");
+
+Console.WriteLine();
+
+Console.WriteLine("==============================================================");
+Console.WriteLine("      PRUEBA AISLADA DE FASE 3 COMPLETADA");
+Console.WriteLine("==============================================================");
+//
+// ============================================================
+// FASE 3
+// PRUEBA DE INTEGRACIÓN INVENTARIO + AUDITORÍA
+// ============================================================
+//
+
+Console.WriteLine();
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("      FASTCART - INTEGRACIÓN INVENTARIO + AUDITORÍA");
+Console.WriteLine("==============================================================");
+
+//
+// CREAR UNA ÚNICA INSTANCIA COMPARTIDA DE AUDITORÍA
+//
+
+AuditoriaService auditoriaIntegrada =
+    new AuditoriaService();
+
+InventarioLista inventarioIntegrado =
+    new InventarioLista(auditoriaIntegrada);
+
+Console.WriteLine();
+Console.WriteLine("EJECUTANDO OPERACIONES REALES SOBRE EL CATÁLOGO...");
+Console.WriteLine("--------------------------------------------------------------");
+
+
+//
+// INSERT 1
+//
+
+inventarioIntegrado.InsertarOrdenado(new Producto
+{
+    SKU = 5001,
+    Nombre = "Laptop Auditoría",
+    Precio = 18500.00,
+    Stock = 25,
+    DatosProveedor = proveedor1
+});
+
+Console.WriteLine(
+    "INSERT 5001 ejecutado correctamente.");
+
+
+//
+// INSERT 2
+//
+
+inventarioIntegrado.InsertarOrdenado(new Producto
+{
+    SKU = 5002,
+    Nombre = "Monitor Auditoría",
+    Precio = 6200.00,
+    Stock = 40,
+    DatosProveedor = proveedor2
+});
+
+Console.WriteLine(
+    "INSERT 5002 ejecutado correctamente.");
+
+
+//
+// UPDATE
+//
+
+bool precioActualizado =
+    inventarioIntegrado.ActualizarPrecio(
+        5001,
+        17999.99);
+
+Console.WriteLine(
+    precioActualizado
+        ? "UPDATE 5001 ejecutado correctamente."
+        : "ERROR al actualizar SKU 5001.");
+
+
+//
+// DELETE
+//
+
+bool productoEliminado =
+    inventarioIntegrado.EliminarPorSKU(5002);
+
+Console.WriteLine(
+    productoEliminado
+        ? "DELETE 5002 ejecutado correctamente."
+        : "ERROR al eliminar SKU 5002.");
+
+
+//
+// RESULTADOS
+//
+
+Console.WriteLine();
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine("RESULTADOS DE LA INTEGRACIÓN");
+Console.WriteLine("--------------------------------------------------------------");
+
+Console.WriteLine(
+    $"Productos restantes en catálogo: " +
+    $"{inventarioIntegrado.Contar()}");
+
+Console.WriteLine(
+    $"Eventos registrados automáticamente: " +
+    $"{auditoriaIntegrada.TotalRegistros}");
+
+Console.WriteLine(
+    auditoriaIntegrada.ValidarIntegridad()
+        ? "Integridad de auditoría: CORRECTA"
+        : "Integridad de auditoría: ERROR");
+
+
+//
+// HISTORIAL CRONOLÓGICO
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("HISTORIAL AUTOMÁTICO - ORDEN CRONOLÓGICO");
+Console.WriteLine("==============================================================");
+
+auditoriaIntegrada.ImprimirHistorial();
+
+
+//
+// HISTORIAL INVERSO
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("HISTORIAL AUTOMÁTICO - ORDEN INVERSO");
+Console.WriteLine("==============================================================");
+
+auditoriaIntegrada.ImprimirHistorialInverso();
+
+
+//
+// VALIDACIÓN FINAL
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+
+Console.WriteLine(
+    auditoriaIntegrada.TotalRegistros == 4 &&
+    auditoriaIntegrada.ValidarIntegridad()
+        ? "RESULTADO FINAL: INTEGRACIÓN CORRECTA"
+        : "RESULTADO FINAL: ERROR DE INTEGRACIÓN");
+
+Console.WriteLine("==============================================================");
+Console.WriteLine("      PRUEBA INTEGRADA DE FASE 3 COMPLETADA");
 Console.WriteLine("==============================================================");
