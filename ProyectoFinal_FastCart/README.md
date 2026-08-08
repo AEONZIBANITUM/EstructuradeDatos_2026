@@ -971,3 +971,382 @@ El comportamiento del algoritmo fue medido utilizando `System.Diagnostics.Stopwa
 Finalmente, se realizó una auditoría técnica para confirmar que la solución no depende de LINQ, `Array.Sort()`, `.Sort()` ni de colecciones genéricas que sustituyan la implementación manual requerida.
 
 Con esta base terminada, el proyecto queda preparado para continuar con las siguientes fases, donde el catálogo evolucionará hacia estructuras de datos dinámicas y nuevos módulos de gestión.
+
+
+
+---
+
+# Fase 2 — Arquitectura Dinámica del Catálogo Maestro
+
+## Migración de Arreglo a Lista Simplemente Enlazada
+
+La Fase 2 transforma el catálogo de FastCart desde el arreglo nativo utilizado
+durante la Fase 1 hacia una **Lista Simplemente Enlazada implementada
+manualmente en C#**.
+
+La finalidad principal de esta evolución es permitir que el inventario pueda
+crecer y reducirse dinámicamente durante la ejecución sin depender de una
+capacidad fija previamente establecida.
+
+La nueva estructura se compone de:
+
+```text
+InventarioLista
+      │
+      └── _cabeza
+             ↓
+       NodoProducto
+             ↓
+       NodoProducto
+             ↓
+       NodoProducto
+             ↓
+           null
+```
+
+Cada `NodoProducto` almacena:
+
+- Un objeto `Producto` mediante la propiedad `Data`.
+- Una referencia `Siguiente` hacia el próximo nodo.
+- `null` cuando el nodo representa el final de la lista.
+
+---
+
+## Estructuras Implementadas
+
+### NodoProducto
+
+Representa la unidad individual de almacenamiento del catálogo dinámico.
+
+```csharp
+public class NodoProducto
+{
+    public Producto Data { get; set; }
+    public NodoProducto? Siguiente { get; set; }
+}
+```
+
+Cada nodo mantiene un producto completo y una referencia hacia el siguiente
+elemento de la cadena.
+
+---
+
+### InventarioLista
+
+Centraliza la administración de la estructura enlazada mediante un único
+puntero principal:
+
+```csharp
+private NodoProducto? _cabeza;
+```
+
+Los métodos implementados son:
+
+- `EstaVacia()`
+- `InsertarInicio()`
+- `InsertarOrdenado()`
+- `Contar()`
+- `BuscarPorSKU()`
+- `EliminarPorSKU()`
+- `MostrarTodos()`
+
+---
+
+## Inserción Dinámica
+
+La operación:
+
+```csharp
+InsertarInicio()
+```
+
+permite agregar un nodo directamente al frente de la lista con complejidad:
+
+```text
+O(1)
+```
+
+También se implementó:
+
+```csharp
+InsertarOrdenado()
+```
+
+que recorre los nodos hasta encontrar la posición correspondiente según:
+
+```text
+Precio ASC
+```
+
+Su complejidad temporal es:
+
+```text
+O(n)
+```
+
+La inserción ordenada no necesita desplazar los demás productos en memoria.
+Únicamente modifica las referencias necesarias entre nodos.
+
+---
+
+## Búsqueda por SKU
+
+La operación:
+
+```csharp
+BuscarPorSKU(int sku)
+```
+
+realiza un recorrido secuencial desde `_cabeza`.
+
+Complejidad:
+
+```text
+O(n)
+```
+
+Cuando el SKU solicitado no existe, el método genera una excepción controlada:
+
+```csharp
+KeyNotFoundException
+```
+
+Durante las pruebas se utilizó deliberadamente:
+
+```text
+SKU 9999
+```
+
+obteniéndose:
+
+```text
+Excepción controlada: SKU 9999 no encontrado en el inventario.
+```
+
+---
+
+## Eliminación por SKU
+
+La operación:
+
+```csharp
+EliminarPorSKU(int sku)
+```
+
+localiza el nodo correspondiente y modifica las referencias necesarias para
+preservar la continuidad de la lista.
+
+Se probaron satisfactoriamente los siguientes escenarios:
+
+- Lista vacía.
+- Eliminación de la cabeza.
+- Eliminación de un nodo intermedio.
+- Eliminación del último nodo.
+- Eliminación de un SKU inexistente.
+
+Cuando un nodo deja de ser alcanzable desde `_cabeza`, queda disponible para
+ser recuperado posteriormente por el Garbage Collector de .NET.
+
+---
+
+# Prueba Funcional de Fase 2
+
+Se realizó una prueba mediante consola con:
+
+```text
+15 productos
+```
+
+Los productos fueron insertados deliberadamente en un orden diferente al de
+sus precios.
+
+La operación:
+
+```csharp
+InsertarOrdenado()
+```
+
+generó automáticamente el catálogo final en:
+
+```text
+Precio ASC
+```
+
+Los precios observados comenzaron en:
+
+```text
+$179.90
+```
+
+y finalizaron en:
+
+```text
+$24,999.00
+```
+
+confirmando que la lista permaneció ordenada mientras aumentaba dinámicamente
+su cantidad de nodos.
+
+---
+
+# Auditoría de Casos Borde
+
+La implementación fue sometida a una auditoría estructural adicional.
+
+Resultados:
+
+```text
+Lista vacía                         CORRECTO
+Inserción al inicio                 CORRECTO
+Eliminación de cabeza               CORRECTO
+Eliminación de nodo intermedio      CORRECTO
+Eliminación del último nodo         CORRECTO
+Búsqueda de SKU inexistente         CORRECTO
+```
+
+Resultado final:
+
+```text
+AUDITORÍA ESTRUCTURAL COMPLETADA CORRECTAMENTE
+```
+
+---
+
+# Comparación Técnica: Fase 1 vs. Fase 2
+
+| Característica | Fase 1 — Arreglo | Fase 2 — Lista Enlazada |
+|---|---|---|
+| Estructura principal | `Producto[]` | `NodoProducto` |
+| Tamaño | Determinado al crear el arreglo | Dinámico durante ejecución |
+| Memoria física | Contigua para los elementos del arreglo | Nodos independientes enlazados por referencias |
+| Acceso por índice | O(1) | No existe acceso directo |
+| Búsqueda por SKU | O(n) | O(n) |
+| Inserción al inicio | Requiere desplazamiento | O(1) |
+| Inserción ordenada | O(n) + desplazamientos | O(n) + reenlace |
+| Eliminación | Requiere reorganizar elementos | Reenlace de referencias |
+| Crecimiento | Requiere nueva capacidad/arreglo | Creación dinámica de nodos |
+| Liberación | Arreglo completo según ciclo de vida | Nodos no alcanzables gestionados por GC |
+
+---
+
+## Comparación de Uso de Memoria
+
+### Arreglo — Fase 1
+
+Un arreglo ofrece una representación compacta de elementos y acceso directo por
+posición.
+
+Su principal ventaja es la localidad de memoria y el acceso mediante índice en
+tiempo constante.
+
+Sin embargo, su capacidad queda determinada cuando se crea la estructura. Si se
+reserva más espacio del realmente utilizado puede existir capacidad desperdiciada;
+si el espacio resulta insuficiente, es necesario crear una estructura mayor y copiar
+los elementos.
+
+Por esta razón es adecuado cuando:
+
+- la cantidad de productos es conocida;
+- se necesita acceso frecuente por posición;
+- existen pocas inserciones o eliminaciones;
+- la estructura cambia poco durante su ciclo de vida.
+
+---
+
+### Lista Enlazada — Fase 2
+
+La lista simplemente enlazada crea memoria únicamente cuando se agrega un nuevo
+nodo al catálogo.
+
+Cada nodo incorpora un costo adicional correspondiente a la referencia
+`Siguiente`, por lo que individualmente posee más overhead que un elemento
+equivalente dentro de un arreglo.
+
+Sin embargo, la estructura no necesita reservar capacidad adicional para un
+crecimiento futuro.
+
+Esto permite que FastCart adapte el catálogo al número real de productos durante
+la ejecución.
+
+La lista resulta especialmente adecuada cuando:
+
+- el número de elementos cambia con frecuencia;
+- existen inserciones y eliminaciones constantes;
+- no es indispensable el acceso aleatorio mediante índice;
+- se prioriza flexibilidad estructural sobre localidad de memoria.
+
+---
+
+## Conclusión del Comparativo
+
+La Fase 2 no sustituye al arreglo porque la lista enlazada consuma necesariamente
+menos memoria por elemento.
+
+De hecho, cada nodo requiere una referencia adicional y es administrado como un
+objeto independiente en el Heap.
+
+La ventaja principal de la lista enlazada se encuentra en su **flexibilidad
+dinámica**.
+
+Mientras que la Fase 1 ofrece mejor acceso directo y una representación compacta
+para conjuntos conocidos, la Fase 2 permite que el catálogo crezca, disminuya y
+modifique sus conexiones sin reconstruir un bloque completo de almacenamiento.
+
+Por lo tanto:
+
+```text
+Fase 1 → eficiencia de acceso y almacenamiento contiguo
+Fase 2 → flexibilidad de crecimiento y modificación dinámica
+```
+
+La elección correcta depende del comportamiento esperado del sistema.
+
+Para FastCart, donde el catálogo puede sufrir altas y bajas frecuentes, la lista
+enlazada proporciona una base estructural más adecuada para las siguientes fases
+del proyecto.
+
+---
+
+# Evidencias de Fase 2
+
+## Evidencia F2-01
+Creación e integración inicial de la rama `proyecto/fase2-listas`.
+
+## Evidencia F2-02
+Implementación y validación del nodo dinámico `NodoProducto`.
+
+## Evidencia F2-03-1
+Inserción dinámica de 15 productos y validación del orden por precio ascendente.
+
+## Evidencia F2-03-2
+Búsqueda por SKU, excepción controlada y eliminación dinámica.
+
+## Evidencia F2-04-1
+Auditoría de casos borde e integridad de la lista enlazada.
+
+## Evidencia F2-04-2
+Verificación final de la integridad estructural.
+
+---
+
+# Estado de la Fase 2
+
+- [x] Rama `proyecto/fase2-listas`.
+- [x] Clase `NodoProducto`.
+- [x] Propiedad `Data`.
+- [x] Referencia `Siguiente`.
+- [x] Clase `InventarioLista`.
+- [x] Puntero `_cabeza`.
+- [x] Inserción al inicio.
+- [x] Inserción ordenada.
+- [x] Orden por precio ascendente.
+- [x] Búsqueda por SKU.
+- [x] Excepción controlada.
+- [x] Eliminación por SKU.
+- [x] Recorrido secuencial.
+- [x] Prueba dinámica con 15 productos.
+- [x] Auditoría de casos borde.
+- [x] Comentarios XML.
+- [x] Comparación técnica con Fase 1.
+- [x] Documentación técnica.
+- [ ] Pull Request de Fase 2.
