@@ -1,4 +1,5 @@
-﻿using ProyectoFinal_FastCart.Models;
+﻿using System.Diagnostics;
+using ProyectoFinal_FastCart.Models;
 using ProyectoFinal_FastCart.Services;
 
 Console.WriteLine("==============================================================");
@@ -8,13 +9,28 @@ Console.WriteLine("          Módulo de Inteligencia de Precios");
 Console.WriteLine("          Proyecto Final - Estructura de Datos");
 Console.WriteLine("==============================================================");
 
-Producto[] catalogo = CatalogoService.GenerarCatalogo(50);
+#if DEBUG
+const string modoCompilacion = "Debug";
+#else
+const string modoCompilacion = "Release";
+#endif
+
+const int cantidadProductos = 500;
+
+Console.WriteLine();
+Console.WriteLine($"Modo de compilación: {modoCompilacion}");
+Console.WriteLine($"Total de productos: {cantidadProductos}");
+
+// Warm-up para reducir el impacto inicial de la compilación JIT.
+Producto[] catalogoWarmUp = CatalogoService.GenerarCatalogo(100);
+OrdenamientoService.ShellSort(catalogoWarmUp);
+
+// Catálogo real utilizado para la medición.
+Producto[] catalogo = CatalogoService.GenerarCatalogo(cantidadProductos);
 
 Console.WriteLine();
 Console.WriteLine("CATÁLOGO ANTES DEL ORDENAMIENTO");
 Console.WriteLine("--------------------------------------------------------------");
-Console.WriteLine($"Total de productos: {catalogo.Length}");
-Console.WriteLine();
 
 CatalogoService.MostrarPrimeros(catalogo, 5);
 
@@ -23,7 +39,12 @@ Console.WriteLine("Ejecutando ShellSort...");
 Console.WriteLine("Criterio: Precio DESC -> SKU ASC");
 Console.WriteLine();
 
+// Medición exclusiva del algoritmo ShellSort.
+Stopwatch cronometro = Stopwatch.StartNew();
+
 OrdenamientoService.ShellSort(catalogo);
+
+cronometro.Stop();
 
 Console.WriteLine("CATÁLOGO DESPUÉS DEL ORDENAMIENTO");
 Console.WriteLine("--------------------------------------------------------------");
@@ -49,3 +70,12 @@ Console.WriteLine("Productos con precio idéntico de $1499.99:");
 Console.WriteLine();
 
 CatalogoService.MostrarPorPrecio(catalogo, 1499.99);
+
+Console.WriteLine();
+Console.WriteLine("MÉTRICAS DE RENDIMIENTO - SHELLSORT");
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine($"Productos procesados: {catalogo.Length}");
+Console.WriteLine($"Tiempo: {cronometro.ElapsedMilliseconds} ms");
+Console.WriteLine($"Tiempo: {cronometro.Elapsed.TotalMicroseconds:F2} µs");
+Console.WriteLine($"Ticks:  {cronometro.ElapsedTicks}");
+Console.WriteLine("--------------------------------------------------------------");
