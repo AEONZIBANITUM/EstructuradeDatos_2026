@@ -91,4 +91,19 @@ public static class CatalogoService
                 $"Proveedor: {producto.DatosProveedor.NombreCorporativo}");
         }
     }
+    public static void MostrarPorPrecio(Producto[] catalogo, double precio)
+{
+    for (int i = 0; i < catalogo.Length; i++)
+    {
+        Producto producto = catalogo[i];
+
+        if (producto.Precio == precio)
+        {
+            Console.WriteLine(
+                $"SKU: {producto.SKU} | " +
+                $"Producto: {producto.Nombre} | " +
+                $"Precio: ${producto.Precio:F2}");
+        }
+    }
+}
 }
