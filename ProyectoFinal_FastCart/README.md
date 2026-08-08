@@ -1350,3 +1350,78 @@ Verificación final de la integridad estructural.
 - [x] Comparación técnica con Fase 1.
 - [x] Documentación técnica.
 - [ ] Pull Request de Fase 2.
+
+
+---
+
+# Fase 3 — Motor de Navegación Bidireccional para el Historial de Auditoría
+
+## Descripción general
+
+La Fase 3 extiende el backend de FastCart mediante la incorporación de un
+motor de auditoría basado en una lista doblemente enlazada.
+
+El objetivo principal consiste en registrar de forma automática y trazable las
+operaciones que modifican el catálogo dinámico construido durante la Fase 2.
+
+A partir de esta implementación, las operaciones de inserción, actualización y
+eliminación generan eventos de auditoría que pueden consultarse tanto en orden
+cronológico como en orden inverso.
+
+La solución fue implementada manualmente en C# utilizando nodos enlazados y
+referencias explícitas, manteniendo separadas las responsabilidades del catálogo
+y del sistema de auditoría.
+
+---
+
+## Objetivo de la Fase 3
+
+Construir un sistema de auditoría capaz de:
+
+- Registrar automáticamente movimientos realizados sobre el inventario.
+- Mantener un historial cronológico de operaciones.
+- Permitir navegación bidireccional entre registros.
+- Consultar eventos desde el más antiguo hasta el más reciente.
+- Consultar eventos desde el más reciente hasta el más antiguo.
+- Mantener encapsulados los punteros internos de la estructura.
+- Integrarse con `InventarioLista` mediante inyección de dependencia.
+- Validar la integridad estructural de los enlaces.
+- Mantener una cobertura de pruebas superior al 80 %.
+- Conservar un historial Git trazable mediante commits atómicos.
+
+---
+
+## Arquitectura incorporada
+
+La Fase 3 agrega los siguientes componentes:
+
+```text
+ProyectoFinal_FastCart/
+│
+├── Models/
+│   ├── LogMovimiento.cs
+│   ├── NodoAuditoria.cs
+│   ├── Producto.cs
+│   └── Proveedor.cs
+│
+├── Properties/
+│   └── AssemblyInfo.cs
+│
+├── Services/
+│   ├── AuditoriaService.cs
+│   ├── CatalogoService.cs
+│   └── OrdenamientoService.cs
+│
+├── Structures/
+│   ├── InventarioLista.cs
+│   └── NodoProducto.cs
+│
+├── Program.cs
+├── ProyectoFinal_FastCart.csproj
+└── README.md
+
+ProyectoFinal_FastCart.Tests/
+│
+├── AuditoriaServiceTests.cs
+├── MSTestSettings.cs
+└── ProyectoFinal_FastCart.Tests.csproj
