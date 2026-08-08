@@ -574,3 +574,156 @@ Console.WriteLine();
 Console.WriteLine("==============================================================");
 Console.WriteLine("      PRUEBA AISLADA DE FASE 3 COMPLETADA");
 Console.WriteLine("==============================================================");
+//
+// ============================================================
+// FASE 3
+// PRUEBA DE INTEGRACIÓN INVENTARIO + AUDITORÍA
+// ============================================================
+//
+
+Console.WriteLine();
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("      FASTCART - INTEGRACIÓN INVENTARIO + AUDITORÍA");
+Console.WriteLine("==============================================================");
+
+//
+// CREAR UNA ÚNICA INSTANCIA COMPARTIDA DE AUDITORÍA
+//
+
+AuditoriaService auditoriaIntegrada =
+    new AuditoriaService();
+
+InventarioLista inventarioIntegrado =
+    new InventarioLista(auditoriaIntegrada);
+
+Console.WriteLine();
+Console.WriteLine("EJECUTANDO OPERACIONES REALES SOBRE EL CATÁLOGO...");
+Console.WriteLine("--------------------------------------------------------------");
+
+
+//
+// INSERT 1
+//
+
+inventarioIntegrado.InsertarOrdenado(new Producto
+{
+    SKU = 5001,
+    Nombre = "Laptop Auditoría",
+    Precio = 18500.00,
+    Stock = 25,
+    DatosProveedor = proveedor1
+});
+
+Console.WriteLine(
+    "INSERT 5001 ejecutado correctamente.");
+
+
+//
+// INSERT 2
+//
+
+inventarioIntegrado.InsertarOrdenado(new Producto
+{
+    SKU = 5002,
+    Nombre = "Monitor Auditoría",
+    Precio = 6200.00,
+    Stock = 40,
+    DatosProveedor = proveedor2
+});
+
+Console.WriteLine(
+    "INSERT 5002 ejecutado correctamente.");
+
+
+//
+// UPDATE
+//
+
+bool precioActualizado =
+    inventarioIntegrado.ActualizarPrecio(
+        5001,
+        17999.99);
+
+Console.WriteLine(
+    precioActualizado
+        ? "UPDATE 5001 ejecutado correctamente."
+        : "ERROR al actualizar SKU 5001.");
+
+
+//
+// DELETE
+//
+
+bool productoEliminado =
+    inventarioIntegrado.EliminarPorSKU(5002);
+
+Console.WriteLine(
+    productoEliminado
+        ? "DELETE 5002 ejecutado correctamente."
+        : "ERROR al eliminar SKU 5002.");
+
+
+//
+// RESULTADOS
+//
+
+Console.WriteLine();
+Console.WriteLine("--------------------------------------------------------------");
+Console.WriteLine("RESULTADOS DE LA INTEGRACIÓN");
+Console.WriteLine("--------------------------------------------------------------");
+
+Console.WriteLine(
+    $"Productos restantes en catálogo: " +
+    $"{inventarioIntegrado.Contar()}");
+
+Console.WriteLine(
+    $"Eventos registrados automáticamente: " +
+    $"{auditoriaIntegrada.TotalRegistros}");
+
+Console.WriteLine(
+    auditoriaIntegrada.ValidarIntegridad()
+        ? "Integridad de auditoría: CORRECTA"
+        : "Integridad de auditoría: ERROR");
+
+
+//
+// HISTORIAL CRONOLÓGICO
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("HISTORIAL AUTOMÁTICO - ORDEN CRONOLÓGICO");
+Console.WriteLine("==============================================================");
+
+auditoriaIntegrada.ImprimirHistorial();
+
+
+//
+// HISTORIAL INVERSO
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("HISTORIAL AUTOMÁTICO - ORDEN INVERSO");
+Console.WriteLine("==============================================================");
+
+auditoriaIntegrada.ImprimirHistorialInverso();
+
+
+//
+// VALIDACIÓN FINAL
+//
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+
+Console.WriteLine(
+    auditoriaIntegrada.TotalRegistros == 4 &&
+    auditoriaIntegrada.ValidarIntegridad()
+        ? "RESULTADO FINAL: INTEGRACIÓN CORRECTA"
+        : "RESULTADO FINAL: ERROR DE INTEGRACIÓN");
+
+Console.WriteLine("==============================================================");
+Console.WriteLine("      PRUEBA INTEGRADA DE FASE 3 COMPLETADA");
+Console.WriteLine("==============================================================");
