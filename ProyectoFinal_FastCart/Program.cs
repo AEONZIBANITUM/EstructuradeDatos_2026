@@ -255,3 +255,151 @@ Console.WriteLine();
 Console.WriteLine("==============================================================");
 Console.WriteLine("        PRUEBA FUNCIONAL DE FASE 2 COMPLETADA");
 Console.WriteLine("==============================================================");
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("          AUDITORÍA DE CASOS BORDE - FASE 2");
+Console.WriteLine("==============================================================");
+
+//
+// CASO 1: LISTA VACÍA
+//
+Console.WriteLine();
+Console.WriteLine("[1] LISTA VACÍA");
+Console.WriteLine("--------------------------------------------------------------");
+
+InventarioLista listaAuditoria = new InventarioLista();
+
+Console.WriteLine(
+    listaAuditoria.EstaVacia()
+        ? "Resultado: CORRECTO - La lista inicia vacía."
+        : "Resultado: ERROR - La lista debería estar vacía.");
+
+bool eliminarEnVacia = listaAuditoria.EliminarPorSKU(9999);
+
+Console.WriteLine(
+    !eliminarEnVacia
+        ? "Eliminar en lista vacía: CORRECTO."
+        : "Eliminar en lista vacía: ERROR.");
+
+//
+// CASO 2: INSERTAR AL INICIO
+//
+Console.WriteLine();
+Console.WriteLine("[2] INSERCIÓN AL INICIO - O(1)");
+Console.WriteLine("--------------------------------------------------------------");
+
+listaAuditoria.InsertarInicio(new Producto
+{
+    SKU = 3001,
+    Nombre = "Producto Cabeza",
+    Precio = 500.00,
+    Stock = 10,
+    DatosProveedor = proveedor1
+});
+
+Console.WriteLine($"Productos después de InsertarInicio: {listaAuditoria.Contar()}");
+listaAuditoria.MostrarTodos();
+
+//
+// CASO 3: ELIMINAR CABEZA
+//
+Console.WriteLine();
+Console.WriteLine("[3] ELIMINACIÓN DE LA CABEZA");
+Console.WriteLine("--------------------------------------------------------------");
+
+bool cabezaEliminada = listaAuditoria.EliminarPorSKU(3001);
+
+Console.WriteLine(
+    cabezaEliminada && listaAuditoria.EstaVacia()
+        ? "Resultado: CORRECTO - Cabeza eliminada y lista vacía."
+        : "Resultado: ERROR al eliminar la cabeza.");
+
+//
+// PREPARAR LISTA PARA CASOS INTERMEDIO Y FINAL
+//
+listaAuditoria.InsertarOrdenado(new Producto
+{
+    SKU = 3101,
+    Nombre = "Producto Bajo",
+    Precio = 100.00,
+    Stock = 10,
+    DatosProveedor = proveedor1
+});
+
+listaAuditoria.InsertarOrdenado(new Producto
+{
+    SKU = 3102,
+    Nombre = "Producto Medio",
+    Precio = 200.00,
+    Stock = 20,
+    DatosProveedor = proveedor2
+});
+
+listaAuditoria.InsertarOrdenado(new Producto
+{
+    SKU = 3103,
+    Nombre = "Producto Alto",
+    Precio = 300.00,
+    Stock = 30,
+    DatosProveedor = proveedor3
+});
+
+Console.WriteLine();
+Console.WriteLine("Lista preparada:");
+listaAuditoria.MostrarTodos();
+
+//
+// CASO 4: ELIMINAR NODO INTERMEDIO
+//
+Console.WriteLine();
+Console.WriteLine("[4] ELIMINACIÓN DE NODO INTERMEDIO");
+Console.WriteLine("--------------------------------------------------------------");
+
+bool intermedioEliminado = listaAuditoria.EliminarPorSKU(3102);
+
+Console.WriteLine(
+    intermedioEliminado
+        ? "Resultado: CORRECTO - Nodo intermedio eliminado."
+        : "Resultado: ERROR al eliminar nodo intermedio.");
+
+Console.WriteLine($"Productos restantes: {listaAuditoria.Contar()}");
+listaAuditoria.MostrarTodos();
+
+//
+// CASO 5: ELIMINAR ÚLTIMO NODO
+//
+Console.WriteLine();
+Console.WriteLine("[5] ELIMINACIÓN DEL ÚLTIMO NODO");
+Console.WriteLine("--------------------------------------------------------------");
+
+bool ultimoEliminado = listaAuditoria.EliminarPorSKU(3103);
+
+Console.WriteLine(
+    ultimoEliminado
+        ? "Resultado: CORRECTO - Último nodo eliminado."
+        : "Resultado: ERROR al eliminar último nodo.");
+
+Console.WriteLine($"Productos restantes: {listaAuditoria.Contar()}");
+listaAuditoria.MostrarTodos();
+
+//
+// CASO 6: SKU INEXISTENTE
+//
+Console.WriteLine();
+Console.WriteLine("[6] BÚSQUEDA DE SKU INEXISTENTE");
+Console.WriteLine("--------------------------------------------------------------");
+
+try
+{
+    listaAuditoria.BuscarPorSKU(8888);
+}
+catch (KeyNotFoundException ex)
+{
+    Console.WriteLine($"Resultado: CORRECTO - Excepción controlada.");
+    Console.WriteLine(ex.Message);
+}
+
+Console.WriteLine();
+Console.WriteLine("==============================================================");
+Console.WriteLine("       AUDITORÍA ESTRUCTURAL COMPLETADA CORRECTAMENTE");
+Console.WriteLine("==============================================================");
