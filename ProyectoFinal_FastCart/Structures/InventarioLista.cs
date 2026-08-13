@@ -220,6 +220,7 @@ public class InventarioLista
 internal bool DescontarStock(
     int sku,
     int cantidad)
+    
 {
     if (cantidad <= 0)
     {
@@ -253,6 +254,62 @@ internal bool DescontarStock(
         }
 
         actual = actual.Siguiente;
+    }
+
+    return false;
+}
+/// <summary>
+/// Reintegra unidades al stock real almacenado
+/// dentro del nodo correspondiente al SKU indicado.
+///
+/// Debido a que Producto es un struct, la copia
+/// modificada debe ser reasignada al nodo para
+/// persistir correctamente el cambio.
+/// </summary>
+/// <param name="sku">
+/// SKU del producto al cual se reintegrará stock.
+/// </param>
+/// <param name="cantidad">
+/// Cantidad de unidades que serán reintegradas.
+/// </param>
+/// <returns>
+/// True cuando el SKU fue localizado y actualizado.
+/// False cuando el SKU no existe.
+/// </returns>
+internal bool ReintegrarStock(
+    int sku,
+    int cantidad)
+{
+    if (cantidad <= 0)
+    {
+        throw new ArgumentOutOfRangeException(
+            nameof(cantidad),
+            "La cantidad a reintegrar debe ser mayor que cero.");
+    }
+
+    NodoProducto? actual =
+        _cabeza;
+
+    while (actual != null)
+    {
+        if (actual.Data.SKU == sku)
+        {
+            Producto productoActualizado =
+                actual.Data;
+
+            productoActualizado.Stock +=
+                cantidad;
+
+            // Producto es un struct:
+            // debe reasignarse al nodo real.
+            actual.Data =
+                productoActualizado;
+
+            return true;
+        }
+
+        actual =
+            actual.Siguiente;
     }
 
     return false;
