@@ -199,6 +199,64 @@ public class InventarioLista
     /// True cuando el producto fue localizado y actualizado.
     /// False cuando el SKU no existe.
     /// </returns>
+    /// <summary>
+/// Descuenta unidades del stock real almacenado
+/// dentro del nodo correspondiente al SKU indicado.
+///
+/// Este método modifica directamente el Producto
+/// contenido en la lista enlazada y evita trabajar
+/// únicamente sobre una copia del struct.
+/// </summary>
+/// <param name="sku">
+/// SKU del producto cuyo stock será modificado.
+/// </param>
+/// <param name="cantidad">
+/// Cantidad de unidades que serán descontadas.
+/// </param>
+/// <returns>
+/// True cuando el SKU existe y existe stock suficiente.
+/// False cuando el SKU no existe o el stock es insuficiente.
+/// </returns>
+internal bool DescontarStock(
+    int sku,
+    int cantidad)
+{
+    if (cantidad <= 0)
+    {
+        throw new ArgumentOutOfRangeException(
+            nameof(cantidad),
+            "La cantidad a descontar debe ser mayor que cero.");
+    }
+
+    NodoProducto? actual = _cabeza;
+
+    while (actual != null)
+    {
+        if (actual.Data.SKU == sku)
+        {
+            Producto productoActualizado =
+                actual.Data;
+
+            if (productoActualizado.Stock < cantidad)
+            {
+                return false;
+            }
+
+            productoActualizado.Stock -= cantidad;
+
+            // Producto es un struct.
+            // Es obligatorio reasignar la copia modificada
+            // al nodo para persistir el cambio real.
+            actual.Data = productoActualizado;
+
+            return true;
+        }
+
+        actual = actual.Siguiente;
+    }
+
+    return false;
+}
     public bool ActualizarPrecio(
         int sku,
         double nuevoPrecio)
