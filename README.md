@@ -23,6 +23,8 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 | `Practica4/Semana4Recursividad` | Completado | Implementación segura de factorial y Fibonacci en versiones iterativas y recursivas, con medición mediante `Stopwatch` y análisis del Call Stack. |
 | `Practica5/SistemaInventario` | Completado | Sistema de gestión de inventario con `struct`, arreglo estático, validaciones, búsqueda por ID, actualización de stock, persistencia CSV y depuración paso a paso. |
 | `Practica6/CamaraCinematica` | Completado | Simulación de cámara virtual con `structs` anidados, interpolación lineal en seis ejes, modificación mediante `ref`, 20 frames, segundo rig cinematográfico y corte instantáneo. |
+| `ProyectoFinal_FastCart` | En cierre | **FastCart Backend Core** integrado en cuatro fases: inteligencia de precios y ShellSort, catálogo dinámico con lista enlazada, auditoría bidireccional y motor logístico FIFO/LIFO. El desarrollo funcional de Fase 4 está completado y validado; queda el cierre documental, Pull Request y merge final. |
+| `ProyectoFinal_FastCart.Tests` | Validado | Suite MSTest del núcleo FastCart. Estado actual verificado: **46/46 pruebas correctas**, sin errores ni pruebas omitidas. |
 
 ---
 
@@ -38,6 +40,8 @@ Los proyectos están desarrollados principalmente en **C# con .NET 8** y se admi
 - Archivos CSV
 - Depurador integrado de .NET
 - Interpolación lineal aplicada a simulaciones por frames
+- MSTest para pruebas automatizadas
+- Coverlet / XPlat Code Coverage para medición de cobertura
 
 ---
 
@@ -119,6 +123,37 @@ EstructuradeDatos_2026/
 │       ├── CamaraCinematica.csproj
 │       ├── Practica6_JosePauloSantanaRamirez.cs
 │       └── README.md
+├── ProyectoFinal_FastCart/
+│   ├── Models/
+│   │   ├── Devolucion.cs
+│   │   ├── LogMovimiento.cs
+│   │   ├── NodoAuditoria.cs
+│   │   ├── Pedido.cs
+│   │   ├── Producto.cs
+│   │   └── Proveedor.cs
+│   ├── Properties/
+│   │   └── AssemblyInfo.cs
+│   ├── Services/
+│   │   ├── AuditoriaService.cs
+│   │   ├── CatalogoService.cs
+│   │   ├── MenuMaestro.cs
+│   │   └── OrdenamientoService.cs
+│   ├── Structures/
+│   │   ├── ColaDespacho.cs
+│   │   ├── InventarioLista.cs
+│   │   ├── NodoCola.cs
+│   │   ├── NodoPila.cs
+│   │   ├── NodoProducto.cs
+│   │   └── PilaDevoluciones.cs
+│   ├── Program.cs
+│   ├── ProyectoFinal_FastCart.csproj
+│   └── README.md
+├── ProyectoFinal_FastCart.Tests/
+│   ├── AuditoriaServiceTests.cs
+│   ├── ColaDespachoTests.cs
+│   ├── MSTestSettings.cs
+│   ├── PilaDevolucionesTests.cs
+│   └── ProyectoFinal_FastCart.Tests.csproj
 ├── .gitignore
 └── README.md
 ```
@@ -2060,6 +2095,1126 @@ docs: completar documentacion de la practica 6
 
 ---
 
+---
+
+# Proyecto Final — FastCart Backend Core
+
+## Visión general
+
+**FastCart Backend Core** es el proyecto integrador de la materia. Su desarrollo se realizó de forma incremental durante cuatro fases, reutilizando y extendiendo la arquitectura construida en cada etapa hasta obtener un único backend de consola orientado al manejo de catálogo, auditoría y operaciones logísticas.
+
+El proyecto final integra:
+
+- Modelado de productos y proveedores.
+- Ordenamiento nativo mediante ShellSort.
+- Catálogo dinámico implementado manualmente con nodos enlazados.
+- Auditoría mediante lista doblemente enlazada.
+- Recorrido cronológico e inverso del historial.
+- Cola dinámica FIFO para pedidos.
+- Pila dinámica LIFO para devoluciones.
+- Actualización real de stock.
+- Registro automático de eventos en auditoría.
+- Menú Maestro como punto de entrada único.
+- Pruebas automatizadas con MSTest.
+- Medición de cobertura mediante Coverlet.
+
+## Proyectos
+
+Código principal:
+
+```text
+ProyectoFinal_FastCart
+```
+
+Pruebas automatizadas:
+
+```text
+ProyectoFinal_FastCart.Tests
+```
+
+## Objetivo general
+
+Construir un núcleo de procesamiento para FastCart capaz de evolucionar desde un catálogo inicial hacia una arquitectura dinámica de inventario y, posteriormente, hacia un motor logístico integrado.
+
+Las cuatro fases no funcionan como ejercicios aislados. Cada una conserva lo desarrollado anteriormente y agrega una nueva estructura de datos:
+
+```text
+Fase 1
+Catálogo base + ShellSort
+        │
+        ▼
+Fase 2
+Lista enlazada simple
+        │
+        ▼
+Fase 3
+Auditoría doblemente enlazada
+        │
+        ▼
+Fase 4
+Cola FIFO + Pila LIFO
+        │
+        ▼
+Menú Maestro FastCart
+```
+
+---
+
+## Estado actual del Proyecto Final
+
+| Componente | Estado | Validación |
+|---|---|---|
+| Fase 1 — Inteligencia de precios y ordenamiento | Completada | Modelado, ShellSort y pruebas de ordenamiento realizados |
+| Fase 2 — Catálogo dinámico | Completada | Lista enlazada e integración del inventario validadas |
+| Fase 3 — Auditoría bidireccional | Completada | Lista doblemente enlazada, recorridos e integración validados |
+| Fase 4 — Motor logístico FIFO/LIFO | Desarrollo funcional completado | Cola, pila, stock, auditoría y Menú Maestro validados |
+| Suite MSTest | Correcta | **46/46 pruebas correctas** |
+| Build Release | Correcto | Compilación final sin errores |
+| Restricciones estructurales | Correctas | Sin `Queue<T>`, `Stack<T>` ni `System.Linq` en las estructuras del proyecto |
+| Cierre en GitHub | En proceso | Rama Fase 4 publicada; documentación, PR y merge final corresponden al cierre |
+
+---
+
+# Fase 1 — Especificación, Catálogo Base e Inteligencia de Precios
+
+## Propósito
+
+La primera fase establece los modelos y servicios fundamentales de FastCart y desarrolla el módulo de inteligencia de precios.
+
+Los objetivos principales fueron:
+
+- Modelar productos y proveedores.
+- Definir un catálogo base.
+- Implementar un algoritmo de ordenamiento sin depender de métodos automáticos de ordenación.
+- Aplicar ShellSort de forma iterativa.
+- Permitir criterios de ordenamiento por precio y SKU.
+- Medir el comportamiento del algoritmo mediante `Stopwatch`.
+- Preparar una base reutilizable para las fases posteriores.
+
+## Componentes principales
+
+```text
+Models/
+├── Producto.cs
+└── Proveedor.cs
+
+Services/
+├── CatalogoService.cs
+└── OrdenamientoService.cs
+```
+
+### `Producto`
+
+Representa la unidad principal del catálogo.
+
+Entre la información administrada durante el proyecto se encuentran:
+
+- SKU.
+- Nombre.
+- Precio.
+- Stock.
+- Datos del proveedor.
+
+### `Proveedor`
+
+Encapsula la información corporativa asociada al producto.
+
+La separación entre producto y proveedor evita concentrar todos los datos de negocio en una sola estructura y facilita su reutilización durante las siguientes fases.
+
+## ShellSort
+
+El servicio de ordenamiento implementa ShellSort de manera nativa.
+
+El algoritmo permite reorganizar productos utilizando criterios definidos por el sistema, entre ellos:
+
+```text
+Precio
+SKU
+```
+
+La implementación se realizó sin sustituir el algoritmo por llamadas automáticas a métodos de ordenamiento del framework.
+
+## Medición de rendimiento
+
+Se utilizaron mediciones mediante:
+
+```csharp
+System.Diagnostics.Stopwatch
+```
+
+para observar el tiempo de ejecución del proceso de ordenamiento y conservar evidencia cuantitativa de su comportamiento.
+
+## Rama de desarrollo
+
+```text
+proyecto/fase1-ordenamiento
+```
+
+Entre los commits representativos se conservaron cambios para:
+
+```text
+feat: add FastCart base models and catalog generator
+feat: implement ShellSort with price and SKU ordering
+perf: add ShellSort Stopwatch benchmark
+docs: document FastCart phase 1 implementation
+```
+
+---
+
+# Fase 2 — Arquitectura Dinámica del Catálogo Maestro
+
+## Propósito
+
+La segunda fase reemplaza la dependencia conceptual de un catálogo estático por una estructura enlazada capaz de crecer y modificarse dinámicamente.
+
+La estructura central es:
+
+```text
+InventarioLista
+```
+
+apoyada por:
+
+```text
+NodoProducto
+```
+
+## Arquitectura
+
+```text
+InventarioLista
+      │
+      ▼
+NodoProducto
+┌───────────────┐
+│ Producto Data │
+│ Siguiente ─────────► NodoProducto ─────────► ...
+└───────────────┘
+```
+
+Cada nodo conserva:
+
+- Un objeto `Producto`.
+- Una referencia al siguiente nodo.
+
+La lista administra el acceso a la estructura completa.
+
+## Operaciones implementadas
+
+La estructura evolucionó hasta soportar operaciones como:
+
+- Insertar productos.
+- Buscar por SKU.
+- Eliminar productos.
+- Recorrer el catálogo.
+- Contar productos.
+- Mostrar el contenido.
+- Actualizar precios.
+- Descontar stock.
+- Reintegrar stock durante la integración logística.
+
+## Complejidad
+
+Las inserciones y actualizaciones dependen de la operación realizada.
+
+La búsqueda de un SKU dentro de la lista requiere un recorrido secuencial en el peor caso:
+
+```text
+O(n)
+```
+
+La arquitectura evita utilizar una colección enlazada automática del framework como sustituto del ejercicio estructural.
+
+## Casos de borde
+
+La fase fue validada considerando escenarios como:
+
+- Lista vacía.
+- Primer nodo.
+- Último nodo.
+- SKU inexistente.
+- Eliminación de elementos.
+- Actualización de datos.
+- Integración posterior con auditoría y logística.
+
+## Rama de desarrollo
+
+```text
+proyecto/fase2-listas
+```
+
+Commits representativos:
+
+```text
+feat: implement dynamic linked inventory for FastCart
+test: validate linked inventory edge cases and document phase 2
+```
+
+---
+
+# Fase 3 — Motor de Navegación Bidireccional para Auditoría
+
+## Propósito
+
+La tercera fase incorpora un historial de auditoría basado en una lista doblemente enlazada.
+
+El objetivo es registrar operaciones relevantes del inventario y permitir recorrer el historial en las dos direcciones:
+
+```text
+Antiguo → Reciente
+Reciente → Antiguo
+```
+
+## Componentes
+
+```text
+Models/
+├── LogMovimiento.cs
+└── NodoAuditoria.cs
+
+Services/
+└── AuditoriaService.cs
+```
+
+## `LogMovimiento`
+
+Representa un evento de auditoría.
+
+Cada registro conserva información asociada a la operación realizada, como:
+
+- Tipo de operación.
+- SKU.
+- Detalle descriptivo.
+- Fecha y hora.
+
+## `NodoAuditoria`
+
+El nodo contiene enlaces en ambas direcciones:
+
+```text
+Anterior ◄── NodoAuditoria ──► Siguiente
+```
+
+Esto permite navegar directamente hacia el registro anterior o el siguiente.
+
+## `AuditoriaService`
+
+Administra la estructura completa y permite:
+
+- Registrar eventos.
+- Recorrer el historial cronológicamente.
+- Recorrer el historial en orden inverso.
+- Contabilizar registros.
+- Comprobar la integridad bidireccional.
+
+## Integración automática
+
+Las operaciones del inventario se conectaron con `AuditoriaService`.
+
+Durante la validación integrada se comprobaron eventos como:
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+y posteriormente, durante Fase 4:
+
+```text
+DESPACHO_EXITOSO
+STOCK_INSUFICIENTE
+DEVOLUCION_EXITOSA
+```
+
+La auditoría funciona como registro común para los cambios producidos por el catálogo y el motor logístico.
+
+## Recorridos
+
+### Cronológico
+
+```text
+Antiguo → Reciente
+```
+
+Se inicia desde el primer nodo registrado y se avanza mediante `Siguiente`.
+
+### Inverso
+
+```text
+Reciente → Antiguo
+```
+
+Se inicia desde el último nodo y se retrocede mediante `Anterior`.
+
+## Validación
+
+Las pruebas comprobaron:
+
+- Registro de eventos.
+- Integridad de enlaces dobles.
+- Orden cronológico.
+- Orden inverso.
+- Integración automática con operaciones de inventario.
+- Casos de borde.
+- Compilación en Release.
+
+## Rama de desarrollo
+
+```text
+proyecto/fase3-bitacora
+```
+
+Commits representativos:
+
+```text
+feat(audit): add LogMovimiento compliance model
+feat(audit): implement bidirectional NodoAuditoria
+feat(audit): implement AuditoriaService bidirectional history
+test(audit): validate bidirectional history traversal
+feat(integration): connect inventory operations with audit service
+test(audit): add comprehensive audit and inventory coverage
+docs: document FastCart phase 3 audit implementation
+```
+
+---
+
+# Fase 4 — Integración del Motor de Despacho Logístico
+
+## Propósito
+
+La cuarta fase integra dos estructuras dinámicas con políticas de acceso distintas:
+
+```text
+ColaDespacho       → FIFO
+PilaDevoluciones   → LIFO
+```
+
+Ambas estructuras trabajan sobre el mismo inventario de Fase 2 y registran sus resultados en la auditoría de Fase 3.
+
+La arquitectura final puede resumirse así:
+
+```text
+PEDIDOS
+   │
+   ▼
+ColaDespacho (FIFO)
+   │
+   ├──────────────► InventarioLista
+   │                    │
+   │                    ▼
+   └──────────────► AuditoriaService
+
+DEVOLUCIONES
+   │
+   ▼
+PilaDevoluciones (LIFO)
+   │
+   ├──────────────► InventarioLista
+   │                    │
+   │                    ▼
+   └──────────────► AuditoriaService
+```
+
+## Modelos y nodos incorporados
+
+```text
+Models/
+├── Pedido.cs
+└── Devolucion.cs
+
+Structures/
+├── NodoCola.cs
+├── ColaDespacho.cs
+├── NodoPila.cs
+└── PilaDevoluciones.cs
+```
+
+---
+
+## Cola de despacho — FIFO
+
+La cola administra pedidos bajo la política:
+
+```text
+First-In, First-Out
+```
+
+El primer pedido que entra debe ser el primero en salir.
+
+La estructura utiliza dos referencias:
+
+```text
+Frente
+Fin
+```
+
+Conceptualmente:
+
+```text
+Frente
+  │
+  ▼
+Pedido #1 ──► Pedido #2 ──► Pedido #3
+                              ▲
+                              │
+                             Fin
+```
+
+### Encolamiento
+
+Los nuevos pedidos se agregan al final.
+
+La inserción se realiza en tiempo constante:
+
+```text
+O(1)
+```
+
+### Despacho
+
+El pedido se retira desde `Frente`.
+
+El flujo integrado realiza:
+
+1. Obtención del pedido más antiguo.
+2. Búsqueda del SKU en `InventarioLista`.
+3. Validación de stock.
+4. Descuento de unidades.
+5. Registro del evento en `AuditoriaService`.
+6. Actualización de los punteros de la cola.
+
+Se validaron casos de:
+
+- Cola vacía.
+- Pedido válido.
+- SKU inexistente.
+- Stock insuficiente.
+- Reducción correcta de stock.
+- Orden FIFO con múltiples pedidos.
+
+Ejemplo de comportamiento comprobado:
+
+```text
+Encolado:
+#1001 → #1002
+
+Despachado:
+#1001 → #1002
+```
+
+---
+
+## Pila de devoluciones — LIFO
+
+La pila administra devoluciones bajo:
+
+```text
+Last-In, First-Out
+```
+
+La devolución registrada más recientemente es la primera en procesarse.
+
+La estructura utiliza un único puntero:
+
+```text
+Top
+```
+
+Conceptualmente:
+
+```text
+Top
+ │
+ ▼
+Devolución #2002
+        │
+        ▼
+Devolución #2001
+```
+
+### Push
+
+Cada nueva devolución se coloca sobre el `Top`.
+
+Complejidad:
+
+```text
+O(1)
+```
+
+### Pop
+
+La devolución ubicada en el `Top` es la primera en procesarse.
+
+El flujo integrado:
+
+1. Extrae el elemento superior.
+2. Busca el SKU en `InventarioLista`.
+3. Reintegra la cantidad al stock.
+4. Registra el resultado en `AuditoriaService`.
+5. Actualiza el puntero `Top`.
+
+Se validaron:
+
+- Pila vacía.
+- Registro de devoluciones.
+- SKU válido.
+- SKU inexistente.
+- Reintegración de stock.
+- Orden LIFO con múltiples devoluciones.
+
+Ejemplo comprobado:
+
+```text
+Push:
+#2001
+#2002
+
+Pop:
+#2002
+#2001
+```
+
+Durante la prueba integrada de devolución se verificó una progresión de stock:
+
+```text
+5 → 8 → 10
+```
+
+---
+
+# Menú Maestro FastCart
+
+## Objetivo
+
+La integración final utiliza un único punto de entrada para las cuatro fases.
+
+El menú actual es:
+
+```text
+==============================================================
+                    FASTCART BACKEND CORE
+             MOTOR DE DESPACHO LOGÍSTICO v4.0
+==============================================================
+
+FASE 1 — FUNDAMENTOS DEL CATÁLOGO
+[1] Ver información de arquitectura
+
+FASE 2 — CATÁLOGO DINÁMICO
+[2] Agregar producto al catálogo
+[3] Buscar producto por SKU
+[4] Eliminar producto del catálogo
+[5] Mostrar catálogo completo
+
+FASE 3 — AUDITORÍA
+[6] Ver historial cronológico
+[7] Ver historial inverso
+
+FASE 4 — MOTOR LOGÍSTICO
+[8]  Encolar nuevo pedido
+[9]  Despachar pedido (FIFO)
+[10] Registrar devolución (LIFO)
+[11] Procesar devolución del Top
+[12] Ver estado de cola y pila
+
+[0] Salir
+```
+
+## Componentes integrados
+
+El Menú Maestro orquesta:
+
+```text
+AuditoriaService
+InventarioLista
+ColaDespacho
+PilaDevoluciones
+```
+
+y mantiene las mismas instancias durante toda una sesión de ejecución.
+
+Esto permite comprobar de forma interactiva que:
+
+- Los productos agregados permanecen disponibles durante la sesión.
+- Los pedidos reducen stock.
+- Las devoluciones reintegran stock.
+- Los eventos quedan registrados.
+- Los recorridos de auditoría reflejan las operaciones realizadas.
+- El estado de cola y pila cambia conforme se procesan elementos.
+
+---
+
+# Estado logístico integrado
+
+La opción `12` permite consultar en una sola vista:
+
+```text
+COLA DE DESPACHO — FIFO
+Pedidos pendientes
+Estado de la cola
+
+PILA DE DEVOLUCIONES — LIFO
+Devoluciones pendientes
+Estado de la pila
+
+AUDITORÍA
+Eventos registrados
+
+INVENTARIO
+Productos registrados
+```
+
+Se comprobó que los valores cambian de forma dinámica después de operaciones FIFO y LIFO.
+
+Un escenario de validación mostró:
+
+```text
+Pedidos pendientes       : 1
+Devoluciones pendientes  : 1
+Eventos registrados      : 3
+Productos registrados    : 1
+```
+
+demostrando que la vista utiliza el estado real del sistema.
+
+---
+
+# Pruebas automatizadas del Proyecto Final
+
+## Framework
+
+Las pruebas se ejecutan con:
+
+```text
+MSTest
+```
+
+Proyecto:
+
+```text
+ProyectoFinal_FastCart.Tests
+```
+
+Archivos principales:
+
+```text
+AuditoriaServiceTests.cs
+ColaDespachoTests.cs
+PilaDevolucionesTests.cs
+MSTestSettings.cs
+```
+
+## Suite final verificada
+
+La última ejecución documentada produjo:
+
+```text
+Resumen de pruebas:
+total: 46
+con errores: 0
+correcto: 46
+omitido: 0
+```
+
+Por tanto:
+
+```text
+46 / 46 pruebas correctas
+```
+
+## Áreas cubiertas por las pruebas
+
+La suite valida, entre otros puntos:
+
+- Alta y modificación de inventario.
+- Integridad de la lista enlazada.
+- Recorrido cronológico de auditoría.
+- Recorrido inverso.
+- Integridad bidireccional.
+- Encolamiento FIFO.
+- Despacho FIFO.
+- Casos de cola vacía.
+- SKU inexistente.
+- Stock insuficiente.
+- Push LIFO.
+- Pop LIFO.
+- Reintegración de stock.
+- Casos de pila vacía.
+- Integración con auditoría.
+
+La clase de pruebas de auditoría utiliza:
+
+```csharp
+[DoNotParallelize]
+```
+
+para evitar interferencias entre pruebas que capturan o inspeccionan salida compartida.
+
+---
+
+# Cobertura de pruebas
+
+La cobertura final se obtuvo mediante:
+
+```powershell
+dotnet test .\ProyectoFinal_FastCart.Tests\ProyectoFinal_FastCart.Tests.csproj -c Release --collect:"XPlat Code Coverage"
+```
+
+El reporte generado utiliza formato Cobertura:
+
+```text
+coverage.cobertura.xml
+```
+
+## Resultado global
+
+```text
+Cobertura de líneas: 37.50 %
+Cobertura de ramas : 43.61 %
+```
+
+El porcentaje global incluye clases de orquestación e interfaz interactiva que no forman parte directa de la suite unitaria.
+
+Las estructuras centrales presentan una cobertura significativamente mayor.
+
+| Clase | Líneas | Ramas |
+|---|---:|---:|
+| `ColaDespacho` | 90.42 % | 90.00 % |
+| `InventarioLista` | 92.25 % | 84.78 % |
+| `NodoCola` | 100.00 % | 100.00 % |
+| `NodoPila` | 100.00 % | 100.00 % |
+| `NodoProducto` | 100.00 % | 100.00 % |
+| `PilaDevoluciones` | 88.75 % | 75.00 % |
+| `AuditoriaService` | 94.73 % | 76.66 % |
+| `NodoAuditoria` | 100.00 % | 100.00 % |
+| `Devolucion` | 62.50 % | 50.00 % |
+| `Pedido` | 62.50 % | 50.00 % |
+
+La cobertura se utiliza como evidencia complementaria del comportamiento de las estructuras y no sustituye las pruebas funcionales realizadas desde el Menú Maestro.
+
+---
+
+# Restricciones estructurales verificadas
+
+Antes del cierre de Fase 4 se realizó una auditoría sobre el código fuente mediante:
+
+```powershell
+git grep -n "Queue<" -- "ProyectoFinal_FastCart/*.cs" "ProyectoFinal_FastCart/**/*.cs"
+git grep -n "Stack<" -- "ProyectoFinal_FastCart/*.cs" "ProyectoFinal_FastCart/**/*.cs"
+git grep -n "System.Linq" -- "ProyectoFinal_FastCart/*.cs" "ProyectoFinal_FastCart/**/*.cs"
+```
+
+Los tres comandos terminaron sin coincidencias.
+
+Por lo tanto, la implementación final del Proyecto FastCart no utiliza:
+
+```text
+Queue<T>
+Stack<T>
+System.Linq
+```
+
+para sustituir el recorrido o funcionamiento de las estructuras requeridas.
+
+La cola, la pila y las listas fueron construidas manualmente mediante nodos y referencias explícitas.
+
+---
+
+# Compilar FastCart
+
+Desde la raíz del repositorio:
+
+```powershell
+dotnet build .\ProyectoFinal_FastCart\ProyectoFinal_FastCart.csproj -c Release
+```
+
+La validación final documentada terminó correctamente y generó:
+
+```text
+ProyectoFinal_FastCart.dll
+```
+
+para:
+
+```text
+net8.0
+```
+
+---
+
+# Ejecutar FastCart
+
+```powershell
+dotnet run --project .\ProyectoFinal_FastCart\ProyectoFinal_FastCart.csproj -c Release
+```
+
+Al iniciar se presenta el Menú Maestro y las operaciones permanecen disponibles hasta seleccionar:
+
+```text
+0
+```
+
+---
+
+# Ejecutar las pruebas de FastCart
+
+```powershell
+dotnet test .\ProyectoFinal_FastCart.Tests\ProyectoFinal_FastCart.Tests.csproj -c Release
+```
+
+Resultado final esperado y verificado:
+
+```text
+total: 46
+con errores: 0
+correcto: 46
+omitido: 0
+```
+
+---
+
+# Generar cobertura de FastCart
+
+```powershell
+dotnet test .\ProyectoFinal_FastCart.Tests\ProyectoFinal_FastCart.Tests.csproj -c Release --collect:"XPlat Code Coverage"
+```
+
+Los reportes locales se generan dentro de:
+
+```text
+ProyectoFinal_FastCart.Tests/TestResults/
+```
+
+Estos resultados son archivos derivados de la ejecución de pruebas y no representan código fuente del proyecto.
+
+---
+
+# Flujo Git del Proyecto Final
+
+El desarrollo fue dividido por fases para conservar trazabilidad.
+
+Ramas utilizadas:
+
+```text
+proyecto/fase1-ordenamiento
+proyecto/fase2-listas
+proyecto/fase3-bitacora
+feature/fase4-cola-pila
+```
+
+La rama de Fase 4 se construyó integrando como línea base el trabajo completado en las Fases 1, 2 y 3.
+
+Entre los commits representativos de Fase 4 se encuentran:
+
+```text
+chore: integrate completed FastCart phases 1-3 into phase 4 baseline
+feat(dispatch): add Pedido and NodoCola models
+feat(dispatch): implement FIFO dispatch queue
+test(dispatch): validate FIFO queue enqueue behavior
+feat(dispatch): integrate FIFO dispatch with inventory and audit
+test(dispatch): validate dispatch stock and failure paths
+feat(returns): add Devolucion and NodoPila models
+feat(returns): implement LIFO returns stack
+test(returns): validate LIFO stack push behavior
+feat(returns): integrate LIFO returns with inventory and audit
+test(returns): validate LIFO stock reintegration and failure paths
+feat(menu): integrate FastCart master menu across all four phases
+```
+
+El historial incremental permite distinguir:
+
+```text
+modelado
+   ↓
+estructura
+   ↓
+pruebas
+   ↓
+integración
+   ↓
+menú final
+```
+
+El Pull Request y el merge final de Fase 4 se documentarán como parte del cierre definitivo del proyecto.
+
+---
+
+# Evidencias del Proyecto Final
+
+Las evidencias de cada fase se administran de forma separada para facilitar la entrega académica en Blackboard.
+
+La organización de entrega utilizada es:
+
+```text
+Entrega Fase 1/
+├── Informe Técnico Comparativo
+├── Evidencias Fase 1
+└── Evidencia del Pull Request
+
+Entrega Fase 2/
+├── Informe Técnico Comparativo
+├── Evidencias Fase 2
+└── Evidencia del Pull Request
+
+Entrega Fase 3/
+├── Informe Técnico Comparativo
+├── Evidencias Fase 3
+└── Evidencia del Pull Request
+
+Entrega Fase 4/
+├── Informe Técnico Comparativo
+├── Evidencias Fase 4
+└── Evidencia del Pull Request
+```
+
+Entre las validaciones registradas en Fase 4 se encuentran:
+
+- Creación de `Pedido` y `NodoCola`.
+- Implementación manual de `ColaDespacho`.
+- Pruebas FIFO.
+- Integración del despacho con inventario y auditoría.
+- Creación de `Devolucion` y `NodoPila`.
+- Implementación manual de `PilaDevoluciones`.
+- Pruebas LIFO.
+- Reintegración de stock.
+- Menú Maestro.
+- Flujo FIFO desde la interfaz.
+- Flujo LIFO desde la interfaz.
+- Auditoría de operaciones logísticas.
+- Estado dinámico de cola y pila.
+- Versionamiento y publicación de la rama.
+- Auditoría de restricciones estructurales.
+- Cobertura final de pruebas.
+
+---
+
+# Arquitectura final de FastCart
+
+```text
+                         FASTCART BACKEND CORE
+                                  │
+                                  ▼
+                            MenuMaestro
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │                       │                       │
+          ▼                       ▼                       ▼
+   InventarioLista         AuditoriaService        Motor Logístico
+          │                       │                       │
+          │                       │             ┌─────────┴─────────┐
+          │                       │             │                   │
+          ▼                       ▼             ▼                   ▼
+   NodoProducto             NodoAuditoria   ColaDespacho     PilaDevoluciones
+                                                │                   │
+                                                ▼                   ▼
+                                            NodoCola            NodoPila
+                                                │                   │
+                                                ▼                   ▼
+                                              Pedido            Devolucion
+```
+
+El inventario y la auditoría constituyen los servicios compartidos del motor logístico.
+
+Las operaciones convergen de la siguiente manera:
+
+```text
+Despacho FIFO
+Pedido
+  ↓
+ColaDespacho
+  ↓
+InventarioLista ──► descontar stock
+  ↓
+AuditoriaService ─► registrar evento
+
+
+Devolución LIFO
+Devolucion
+  ↓
+PilaDevoluciones
+  ↓
+InventarioLista ──► reintegrar stock
+  ↓
+AuditoriaService ─► registrar evento
+```
+
+---
+
+# Principios aplicados en FastCart
+
+## Estructuras manuales
+
+Las listas, cola y pila se construyeron mediante nodos y referencias explícitas.
+
+## Responsabilidad separada
+
+La arquitectura divide:
+
+- Modelos de negocio.
+- Nodos estructurales.
+- Estructuras de datos.
+- Servicios.
+- Interfaz y orquestación.
+- Pruebas.
+
+## Integración incremental
+
+Cada fase conserva la anterior y agrega una nueva capacidad sin reconstruir el sistema desde cero.
+
+## Casos de borde
+
+Las pruebas contemplan tanto rutas exitosas como situaciones inválidas o límites de las estructuras.
+
+## Trazabilidad
+
+Las operaciones relevantes producen información auditable y el desarrollo se conserva mediante commits incrementales.
+
+## Validación automatizada y manual
+
+El comportamiento fue comprobado mediante:
+
+```text
+MSTest
++
+ejecuciones reales desde MenuMaestro
++
+compilación Release
++
+cobertura
++
+auditoría de restricciones
+```
+
+---
+
+# Estado de FastCart antes del cierre final
+
+- Fase 1 completada.
+- Fase 2 completada.
+- Fase 3 completada.
+- Desarrollo funcional de Fase 4 completado.
+- ShellSort implementado.
+- Inventario enlazado implementado.
+- Auditoría bidireccional implementada.
+- Cola FIFO implementada manualmente.
+- Pila LIFO implementada manualmente.
+- Integración de stock completada.
+- Integración de auditoría completada.
+- Menú Maestro con las cuatro fases completado.
+- Opción de estado logístico completada.
+- Build Release correcto.
+- Suite MSTest con **46/46 pruebas correctas**.
+- Cobertura final documentada.
+- Restricciones de `Queue<T>`, `Stack<T>` y LINQ verificadas.
+- Rama `feature/fase4-cola-pila` publicada.
+- Evidencias técnicas recopiladas.
+- Pendiente únicamente el cierre documental, Pull Request y merge final.
+
+---
+
+---
+
 ## Propósito académico
 
 Este repositorio fue desarrollado con fines educativos para comprender, implementar y documentar conceptos de:
@@ -2099,13 +3254,21 @@ Este repositorio fue desarrollado con fines educativos para comprender, implemen
 - Organización de proyectos en C#.
 - Uso de ramas y commits atómicos.
 - Integración mediante merges `--no-ff`.
+- Listas enlazadas simples y doblemente enlazadas.
+- Navegación bidireccional mediante referencias `Anterior` y `Siguiente`.
+- Implementación manual de colas FIFO con punteros `Frente` y `Fin`.
+- Implementación manual de pilas LIFO mediante puntero `Top`.
+- Integración de estructuras de datos con reglas reales de inventario.
+- Pruebas automatizadas mediante MSTest.
+- Medición de cobertura de líneas y ramas.
+- Diseño de un Menú Maestro para integrar módulos acumulativos.
 - Uso responsable de Git y GitHub.
 
 ---
 
 ## Uso de inteligencia artificial como apoyo didáctico
 
-Durante el desarrollo de las prácticas se utilizó ChatGPT como herramienta de apoyo para:
+Durante el desarrollo de las prácticas y del Proyecto Final FastCart se utilizó ChatGPT como herramienta de apoyo para:
 
 - Interpretar las instrucciones y documentos oficiales.
 - Comprender la estructura de los comandos de PowerShell.
