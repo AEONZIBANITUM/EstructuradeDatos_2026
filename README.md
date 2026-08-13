@@ -2171,7 +2171,7 @@ Menú Maestro FastCart
 | Suite MSTest | Correcta | **46/46 pruebas correctas** |
 | Build Release | Correcto | Compilación final sin errores |
 | Restricciones estructurales | Correctas | Sin `Queue<T>`, `Stack<T>` ni `System.Linq` en las estructuras del proyecto |
-| Cierre en GitHub | En proceso | Rama Fase 4 publicada; documentación, PR y merge final corresponden al cierre |
+| Cierre en GitHub | Completado | Pull Request #4 integrado hacia `main` y validación post-merge completada correctamente. |
 
 ---
 
@@ -3036,7 +3036,7 @@ integración
 menú final
 ```
 
-El Pull Request y el merge final de Fase 4 se documentarán como parte del cierre definitivo del proyecto.
+El Pull Request #4 fue revisado e integrado correctamente hacia `main`, completando el cierre definitivo de la Fase 4 y del Proyecto Final FastCart.
 
 ---
 
@@ -3188,12 +3188,14 @@ auditoría de restricciones
 
 ---
 
-# Estado de FastCart antes del cierre final
+# Estado final de FastCart
+
+# Estado final de FastCart
 
 - Fase 1 completada.
 - Fase 2 completada.
 - Fase 3 completada.
-- Desarrollo funcional de Fase 4 completado.
+- Fase 4 completada.
 - ShellSort implementado.
 - Inventario enlazado implementado.
 - Auditoría bidireccional implementada.
@@ -3208,8 +3210,12 @@ auditoría de restricciones
 - Cobertura final documentada.
 - Restricciones de `Queue<T>`, `Stack<T>` y LINQ verificadas.
 - Rama `feature/fase4-cola-pila` publicada.
-- Evidencias técnicas recopiladas.
-- Pendiente únicamente el cierre documental, Pull Request y merge final.
+- Pull Request **#4** completado.
+- Merge final de `feature/fase4-cola-pila` hacia `main` completado.
+- Validación post-merge realizada correctamente sobre `main`.
+- Rama `main` sincronizada con `origin/main`.
+- Working tree verificado sin cambios pendientes.
+- Proyecto Final FastCart Backend Core finalizado.
 
 ---
 
